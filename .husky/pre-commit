@@ -1,0 +1,6 @@
+echo "pre-commit initiated"
+
+echo "lint-staged ..."
+pnpm exec lint-staged
+
+echo "All good! Committing ..."
