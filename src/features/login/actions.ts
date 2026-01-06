@@ -34,5 +34,5 @@ export const loginAction = safeAction
       })
     }
 
-    redirect('/dashboard')
+    redirect('/admin/dashboard')
   })

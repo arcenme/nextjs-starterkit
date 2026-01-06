@@ -5,7 +5,7 @@ import { auth } from '@/lib/auth'
 
 export default async function Page() {
   const session = await auth.api.getSession({ headers: await headers() })
-  if (session) redirect('/dashboard')
+  if (session) redirect('/admin/dashboard')
 
   return <LoginPage />
 }
