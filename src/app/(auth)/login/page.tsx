@@ -1,11 +1,11 @@
-import { LoginForm } from '@/components/shared/login-form'
+import { headers } from 'next/headers'
+import { redirect } from 'next/navigation'
+import LoginPage from '@/features/login'
+import { auth } from '@/lib/auth'
 
-export default function LoginPage() {
-  return (
-    <div className="bg-muted flex min-h-svh flex-col items-center justify-center p-6 md:p-10">
-      <div className="w-full max-w-sm md:max-w-4xl">
-        <LoginForm />
-      </div>
-    </div>
-  )
+export default async function Page() {
+  const session = await auth.api.getSession({ headers: await headers() })
+  if (session) redirect('/dashboard')
+
+  return <LoginPage />
 }
