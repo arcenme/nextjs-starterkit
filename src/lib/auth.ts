@@ -3,7 +3,9 @@ import 'server-only'
 import { betterAuth } from 'better-auth'
 import { drizzleAdapter } from 'better-auth/adapters/drizzle'
 import { nextCookies } from 'better-auth/next-js'
+
 import { db } from '@/db'
+import { sendEmail } from '@/lib/email'
 import { hashPassword, verifyPassword } from '@/lib/password'
 
 export const auth = betterAuth({
@@ -20,6 +22,13 @@ export const auth = betterAuth({
     password: {
       hash: hashPassword,
       verify: verifyPassword,
+    },
+    sendResetPassword: async ({ user, url, token }) => {
+      void sendEmail({
+        to: user.email,
+        subject: 'Reset your password',
+        body: `Reset your password by visiting ${url}?token=${token}`,
+      })
     },
   },
   plugins: [nextCookies()],
