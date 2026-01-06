@@ -2,8 +2,8 @@ import { z } from 'zod'
 
 export const UserSchema = z.object({
   id: z.string().trim().min(1),
-  name: z.string().trim().min(1),
-  email: z.email().trim().min(1),
+  name: z.string().trim().min(1).max(125),
+  email: z.email().trim().min(1).max(255),
   emailVerified: z.boolean().default(false),
   image: z.string().trim().optional(),
   createdAt: z.date(),

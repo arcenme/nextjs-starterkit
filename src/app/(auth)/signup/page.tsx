@@ -1,11 +1,11 @@
-import { SignupForm } from '@/components/shared/signup-form'
+import { headers } from 'next/headers'
+import { redirect } from 'next/navigation'
+import SignUpPage from '@/features/signup'
+import { auth } from '@/lib/auth'
 
-export default function SignupPage() {
-  return (
-    <div className="bg-muted flex min-h-svh flex-col items-center justify-center p-6 md:p-10">
-      <div className="w-full max-w-sm md:max-w-4xl">
-        <SignupForm />
-      </div>
-    </div>
-  )
+export default async function Page() {
+  const session = await auth.api.getSession({ headers: await headers() })
+  if (session) redirect('/dashboard')
+
+  return <SignUpPage />
 }
