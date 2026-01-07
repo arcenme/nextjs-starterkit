@@ -3,6 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useHookFormAction } from '@next-safe-action/adapter-react-hook-form/hooks'
 import { AlertCircleIcon } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import { Controller } from 'react-hook-form'
 import { toast } from 'sonner'
 import { Alert, AlertTitle } from '@/components/ui/alert'
@@ -18,6 +19,8 @@ import { signUpAction } from '@/features/signup/actions'
 import { SignUpSchema } from '@/features/signup/types'
 
 export function SignUpForm() {
+  const router = useRouter()
+
   const { form, action, handleSubmitWithAction, resetFormAndAction } =
     useHookFormAction(signUpAction, zodResolver(SignUpSchema), {
       formProps: {
@@ -31,6 +34,8 @@ export function SignUpForm() {
       actionProps: {
         onSuccess: () => {
           resetFormAndAction()
+          toast.success('Please check your email for a verification link')
+          router.push('/login')
         },
         onError: ({ error }) => {
           if (error.serverError) {

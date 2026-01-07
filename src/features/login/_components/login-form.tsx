@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useHookFormAction } from '@next-safe-action/adapter-react-hook-form/hooks'
 import { AlertCircleIcon } from 'lucide-react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { Controller } from 'react-hook-form'
 import { toast } from 'sonner'
 import { Alert, AlertTitle } from '@/components/ui/alert'
@@ -19,6 +20,8 @@ import { loginAction } from '@/features/login/actions'
 import { LoginSchema } from '@/features/login/types'
 
 export function LoginForm() {
+  const router = useRouter()
+
   const { form, action, handleSubmitWithAction, resetFormAndAction } =
     useHookFormAction(loginAction, zodResolver(LoginSchema), {
       formProps: {
@@ -30,6 +33,7 @@ export function LoginForm() {
       actionProps: {
         onSuccess: () => {
           resetFormAndAction()
+          router.push('/admin/dashboard')
         },
         onError: ({ error }) => {
           if (error.serverError) {

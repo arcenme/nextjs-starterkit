@@ -2,7 +2,6 @@
 import 'server-only'
 
 import { APIError } from 'better-auth'
-import { redirect } from 'next/navigation'
 import { returnValidationErrors } from 'next-safe-action'
 import { SignUpSchema } from '@/features/signup/types'
 import { auth } from '@/lib/auth'
@@ -18,6 +17,7 @@ export const signUpAction = safeAction
           name: parsedInput.name,
           email: parsedInput.email,
           password: parsedInput.password,
+          callbackURL: '/admin/dashboard',
         },
       })
       .catch((error) => {
@@ -33,6 +33,4 @@ export const signUpAction = safeAction
         _errors: ['Invalid credentials'],
       })
     }
-
-    redirect('/admin/dashboard')
   })
