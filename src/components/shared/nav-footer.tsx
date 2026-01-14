@@ -9,9 +9,11 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar'
+import { cn } from '@/lib/utils'
 
-export function NavSecondary({
+export function NavFooter({
   items,
+  className,
   ...props
 }: {
   items: {
@@ -21,7 +23,10 @@ export function NavSecondary({
   }[]
 } & React.ComponentPropsWithoutRef<typeof SidebarGroup>) {
   return (
-    <SidebarGroup {...props}>
+    <SidebarGroup
+      {...props}
+      className={cn('group-data-[collapsible=icon]:p-0', className)}
+    >
       <SidebarGroupContent>
         <SidebarMenu>
           {items.map((item) => (

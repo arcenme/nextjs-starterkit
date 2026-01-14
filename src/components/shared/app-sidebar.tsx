@@ -1,22 +1,11 @@
 'use client'
 
-import {
-  BookOpen,
-  Bot,
-  Command,
-  Frame,
-  LifeBuoy,
-  MapIcon,
-  PieChart,
-  Send,
-  Settings2,
-  SquareTerminal,
-} from 'lucide-react'
+import { BookOpen, Folder, Home } from 'lucide-react'
 import Link from 'next/link'
 import type * as React from 'react'
+import { AppLogo } from '@/components/shared/app-logo'
+import { NavFooter } from '@/components/shared/nav-footer'
 import { NavMain } from '@/components/shared/nav-main'
-import { NavProjects } from '@/components/shared/nav-projects'
-import { NavSecondary } from '@/components/shared/nav-secondary'
 import { NavUser } from '@/components/shared/nav-user'
 import {
   Sidebar,
@@ -27,158 +16,75 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar'
-
-const data = {
-  user: {
-    name: 'shadcn',
-    email: 'm@example.com',
-    avatar: '/avatars/shadcn.jpg',
-  },
-  navMain: [
-    {
-      title: 'Playground',
-      url: '#',
-      icon: SquareTerminal,
-      isActive: true,
-      items: [
-        {
-          title: 'History',
-          url: '#',
-        },
-        {
-          title: 'Starred',
-          url: '#',
-        },
-        {
-          title: 'Settings',
-          url: '#',
-        },
-      ],
-    },
-    {
-      title: 'Models',
-      url: '#',
-      icon: Bot,
-      items: [
-        {
-          title: 'Genesis',
-          url: '#',
-        },
-        {
-          title: 'Explorer',
-          url: '#',
-        },
-        {
-          title: 'Quantum',
-          url: '#',
-        },
-      ],
-    },
-    {
-      title: 'Documentation',
-      url: '#',
-      icon: BookOpen,
-      items: [
-        {
-          title: 'Introduction',
-          url: '#',
-        },
-        {
-          title: 'Get Started',
-          url: '#',
-        },
-        {
-          title: 'Tutorials',
-          url: '#',
-        },
-        {
-          title: 'Changelog',
-          url: '#',
-        },
-      ],
-    },
-    {
-      title: 'Settings',
-      url: '#',
-      icon: Settings2,
-      items: [
-        {
-          title: 'General',
-          url: '#',
-        },
-        {
-          title: 'Team',
-          url: '#',
-        },
-        {
-          title: 'Billing',
-          url: '#',
-        },
-        {
-          title: 'Limits',
-          url: '#',
-        },
-      ],
-    },
-  ],
-  navSecondary: [
-    {
-      title: 'Support',
-      url: '#',
-      icon: LifeBuoy,
-    },
-    {
-      title: 'Feedback',
-      url: '#',
-      icon: Send,
-    },
-  ],
-  projects: [
-    {
-      name: 'Design Engineering',
-      url: '#',
-      icon: Frame,
-    },
-    {
-      name: 'Sales & Marketing',
-      url: '#',
-      icon: PieChart,
-    },
-    {
-      name: 'Travel',
-      url: '#',
-      icon: MapIcon,
-    },
-  ],
-}
+import { env } from '@/env/client'
+import { authClient } from '@/lib/auth-client'
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { data: session, isPending } = authClient.useSession()
+
+  const data = {
+    app: {
+      name: env.NEXT_PUBLIC_APP_NAME,
+      description: 'by @arcenme',
+    },
+    navMain: [
+      {
+        title: 'Dashboard',
+        url: '/admin/dashboard',
+        icon: Home,
+      },
+      {
+        title: 'Documentation',
+        icon: BookOpen,
+        items: [
+          {
+            title: 'Introduction',
+            url: '#',
+            icon: Folder,
+          },
+          {
+            title: 'Get Started',
+            url: '#',
+            icon: Folder,
+          },
+        ],
+      },
+    ],
+    navFooter: [
+      {
+        title: 'Repository',
+        url: 'https://github.com/arcenme/nextjs-starterkit',
+        icon: Folder,
+      },
+    ],
+    navUser: {
+      name: session?.user.name ?? '',
+      email: session?.user.email ?? '',
+      avatar: session?.user.image ?? '',
+    },
+  }
+
   return (
-    <Sidebar variant="inset" {...props}>
+    <Sidebar variant="inset" collapsible="icon" {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
               <Link href="/admin/dashboard">
-                <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                  <Command className="size-4" />
-                </div>
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">Acme Inc</span>
-                  <span className="truncate text-xs">Enterprise</span>
-                </div>
+                <AppLogo app={data.app} />
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
+
       <SidebarContent>
-        <NavMain items={data.navMain} />
-        <NavProjects projects={data.projects} />
-        <NavSecondary items={data.navSecondary} className="mt-auto" />
+        <NavMain label="Menu Items" items={data.navMain} />
       </SidebarContent>
+
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavFooter items={data.navFooter} className="mt-auto" />
+        <NavUser user={data.navUser} isPending={isPending} />
       </SidebarFooter>
     </Sidebar>
   )
