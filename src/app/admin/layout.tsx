@@ -1,6 +1,5 @@
 import { cookies } from 'next/headers'
 import { AppSidebar } from '@/components/shared/app-sidebar'
-import { DynamicBreadcrumbs } from '@/components/shared/breadcrumbs'
 import { Separator } from '@/components/ui/separator'
 import {
   SidebarInset,
@@ -10,8 +9,10 @@ import {
 
 export default async function DashboardLayout({
   children,
+  breadcrumbs,
 }: Readonly<{
   children: React.ReactNode
+  breadcrumbs: React.ReactNode
 }>) {
   const cookieStore = await cookies()
   const defaultOpen = cookieStore.get('sidebar_state')?.value === 'true'
@@ -27,7 +28,7 @@ export default async function DashboardLayout({
               orientation="vertical"
               className="mr-2 data-[orientation=vertical]:h-4"
             />
-            <DynamicBreadcrumbs />
+            {breadcrumbs}
           </div>
         </header>
         <main>{children}</main>

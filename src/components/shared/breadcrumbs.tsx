@@ -1,7 +1,5 @@
-'use client'
-
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import React from 'react'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -11,27 +9,33 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
 
-export function DynamicBreadcrumbs() {
-  const pathname = usePathname()
+interface BreadcrumbsProps {
+  segments: string[]
+}
 
-  const allSegments = pathname.split('/').filter(Boolean)
-  const segments = allSegments.filter((segment) => segment !== 'admin')
+export function DynamicBreadcrumbs({ segments }: BreadcrumbsProps) {
+  // Filter out 'admin'
+  const filteredSegments = segments.filter((segment) => segment !== 'admin')
 
-  if (segments.length === 0) return null
+  if (filteredSegments.length === 0) {
+    return null
+  }
 
   return (
     <Breadcrumb>
       <BreadcrumbList>
-        {segments.map((segment, index) => {
-          const isLast = index === segments.length - 1
-          const href = `/admin/${segments.slice(0, index + 1).join('/')}`
+        {filteredSegments.map((segment, index) => {
+          const href = `/admin/${filteredSegments.slice(0, index + 1).join('/')}`
+
           const label = segment
             .split('-')
             .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
             .join(' ')
 
+          const isLast = index === filteredSegments.length - 1
+
           return (
-            <div key={href} className="flex items-center gap-2">
+            <React.Fragment key={href}>
               {index > 0 && <BreadcrumbSeparator className="hidden md:block" />}
               <BreadcrumbItem className="hidden md:block">
                 {isLast ? (
@@ -42,7 +46,7 @@ export function DynamicBreadcrumbs() {
                   </BreadcrumbLink>
                 )}
               </BreadcrumbItem>
-            </div>
+            </React.Fragment>
           )
         })}
       </BreadcrumbList>
