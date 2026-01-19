@@ -1,6 +1,7 @@
 'use client'
 
 import { ChevronsUpDown, LogOut, Settings2 } from 'lucide-react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
@@ -45,7 +46,7 @@ export function NavUser({
             {isPending ? (
               <div className="flex gap-2">
                 <Skeleton className="h-8 w-8 rounded-lg" />
-                <Skeleton className="h-4 w-full flex-1" />
+                <Skeleton className="h-8 w-full flex-1" />
               </div>
             ) : (
               <SidebarMenuButton
@@ -88,9 +89,11 @@ export function NavUser({
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <Settings2 />
-                Settings
+              <DropdownMenuItem asChild>
+                <Link href="/admin/settings/profile">
+                  <Settings2 />
+                  Settings
+                </Link>
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
