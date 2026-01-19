@@ -1,5 +1,6 @@
 import 'server-only'
 
+import { headers } from 'next/headers'
 import { createSafeActionClient } from 'next-safe-action'
 import { z } from 'zod'
 import { auth } from '@/lib/auth'
@@ -18,7 +19,7 @@ export const safeAction = createSafeActionClient({
 })
 
 export const authAction = safeAction.use(async ({ next }) => {
-  const session = await auth.api.getSession()
+  const session = await auth.api.getSession({ headers: await headers() })
   if (!session?.user) {
     throw new Error('Unauthorized')
   }
