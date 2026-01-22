@@ -1,4 +1,5 @@
 import { ChangeEmailForm } from '@/features/settings/profile/_components/change-email-form'
+import { ProfileDetailForm } from '@/features/settings/profile/_components/profile-detail-form'
 
 export default function SettingProfilePage() {
   return (
@@ -11,7 +12,8 @@ export default function SettingProfilePage() {
         </p>
       </header>
 
-      <div className="flex gap-4 flex-col">
+      <div className="space-y-12">
+        <ProfileDetailForm />
         <ChangeEmailForm />
       </div>
     </>
