@@ -7,7 +7,7 @@ import { useEffect, useRef } from 'react'
 import { Controller } from 'react-hook-form'
 import { toast } from 'sonner'
 import { ButtonLoading } from '@/components/shared/button-loading'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { UserAvatar } from '@/components/shared/user-avatar'
 import { Button } from '@/components/ui/button'
 import {
   Field,
@@ -20,12 +20,9 @@ import { Input } from '@/components/ui/input'
 import { IMAGE_CONFIG } from '@/constants/image'
 import { updateProfileAction } from '@/features/settings/profile/actions'
 import { UpdateProfileSchema } from '@/features/settings/profile/types'
-import { useInitials } from '@/hooks/use-initials'
 import { authClient } from '@/lib/auth-client'
 
 export function ProfileDetailForm() {
-  const getInitials = useInitials()
-
   const { isPending, data, refetch } = authClient.useSession()
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -58,7 +55,6 @@ export function ProfileDetailForm() {
 
     if (!file) return
 
-    // Client-side validation before processing
     if (!IMAGE_CONFIG.ACCEPTED_MIME.includes(file.type)) {
       form.setError('image', {
         type: 'pattern',
@@ -116,10 +112,63 @@ export function ProfileDetailForm() {
   }, [data?.user, form])
 
   const imagePreview = form.watch('image')
+  const isDisabled = isPending || action.isExecuting
 
   return (
-    <form className="max-w-md space-y-4" onSubmit={handleSubmitWithAction}>
+    <form className="max-w-md space-y-6" onSubmit={handleSubmitWithAction}>
       <FieldGroup className="gap-4">
+        <Controller
+          name="image"
+          control={form.control}
+          render={({ fieldState }) => (
+            <Field data-invalid={fieldState.invalid}>
+              <FieldLabel htmlFor="image">Avatar</FieldLabel>
+
+              <div className="flex items-center gap-4">
+                <div className="relative shrink-0">
+                  <UserAvatar
+                    name={data?.user.name ?? ''}
+                    image={imagePreview}
+                    className="size-20"
+                  />
+                  {imagePreview && (
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="icon"
+                      className="absolute -top-1 -right-1 size-5 rounded-full p-0 shadow-sm"
+                      onClick={handleRemoveImage}
+                      disabled={isDisabled}
+                      aria-label="Remove image"
+                    >
+                      <XIcon className="size-3" />
+                    </Button>
+                  )}
+                </div>
+
+                <div className="flex-1 space-y-1.5">
+                  <Input
+                    ref={fileInputRef}
+                    id="image"
+                    type="file"
+                    accept={IMAGE_CONFIG.ACCEPTED_TYPES.join(',')}
+                    aria-invalid={fieldState.invalid}
+                    onChange={handleImageChange}
+                    disabled={isDisabled}
+                  />
+                  {!fieldState.invalid ? (
+                    <FieldDescription className="text-xs">
+                      .jpg .jpeg .png .webp formats are supported
+                    </FieldDescription>
+                  ) : (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </div>
+              </div>
+            </Field>
+          )}
+        />
+
         <Controller
           name="name"
           control={form.control}
@@ -132,78 +181,23 @@ export function ProfileDetailForm() {
                 id="name"
                 type="text"
                 aria-invalid={fieldState.invalid}
-                disabled={isPending || action.isExecuting}
+                disabled={isDisabled}
               />
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
           )}
         />
-
-        <Controller
-          name="image"
-          control={form.control}
-          render={({ fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor="image">Avatar</FieldLabel>
-              <Input
-                ref={fileInputRef}
-                id="image"
-                type="file"
-                accept={IMAGE_CONFIG.ACCEPTED_TYPES.join(',')}
-                aria-invalid={fieldState.invalid}
-                onChange={handleImageChange}
-                disabled={isPending || action.isExecuting}
-              />
-              {!fieldState.invalid ? (
-                <FieldDescription className="text-xs">
-                  .jpg .jpeg .png .webp formats are supported
-                </FieldDescription>
-              ) : (
-                <FieldError errors={[fieldState.error]} />
-              )}
-            </Field>
-          )}
-        />
-
-        {imagePreview && (
-          <div className="relative size-16">
-            <Avatar className="size-16">
-              <AvatarImage
-                src={imagePreview}
-                alt={data?.user.name ?? 'User avatar'}
-                className="aspect-square object-cover"
-              />
-              <AvatarFallback className="border">
-                {getInitials(data?.user.name ?? '')}
-              </AvatarFallback>
-            </Avatar>
-
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="absolute -top-2 -right-2 size-6 rounded-full p-0"
-              onClick={handleRemoveImage}
-              disabled={isPending || action.isExecuting}
-              aria-label="Remove image"
-            >
-              <XIcon className="size-4" />
-            </Button>
-          </div>
-        )}
-
-        {form.formState.isDirty && (
-          <Field orientation="horizontal" className="gap-2">
-            <ButtonLoading
-              type="submit"
-              loading={action.isExecuting}
-              disabled={isPending || action.isExecuting}
-            >
-              Save
-            </ButtonLoading>
-          </Field>
-        )}
       </FieldGroup>
+
+      {form.formState.isDirty && (
+        <ButtonLoading
+          type="submit"
+          loading={action.isExecuting}
+          disabled={isDisabled}
+        >
+          Save Changes
+        </ButtonLoading>
+      )}
     </form>
   )
 }

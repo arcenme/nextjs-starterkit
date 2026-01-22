@@ -1,3 +1,4 @@
+import { Separator } from '@/components/ui/separator'
 import { ChangeEmailForm } from '@/features/settings/profile/_components/change-email-form'
 import { ProfileDetailForm } from '@/features/settings/profile/_components/profile-detail-form'
 
@@ -14,6 +15,7 @@ export default function SettingProfilePage() {
 
       <div className="space-y-12">
         <ProfileDetailForm />
+        <Separator className="max-w-md" />
         <ChangeEmailForm />
       </div>
     </>
