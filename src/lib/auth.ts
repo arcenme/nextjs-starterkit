@@ -13,6 +13,12 @@ export const auth = betterAuth({
     provider: 'pg',
     usePlural: true,
   }),
+  user: {
+    changeEmail: {
+      enabled: true,
+      updateEmailWithoutVerification: false,
+    },
+  },
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: true,
@@ -24,11 +30,11 @@ export const auth = betterAuth({
       hash: hashPassword,
       verify: verifyPassword,
     },
-    sendResetPassword: async ({ user, url, token }) => {
+    sendResetPassword: async ({ user, url }) => {
       void sendEmail({
         to: user.email,
         subject: 'Reset your password',
-        body: `Reset your password by visiting ${url}?token=${token}`,
+        body: `Reset your password by visiting ${url}`,
       })
     },
   },
@@ -37,11 +43,11 @@ export const auth = betterAuth({
     sendOnSignIn: true,
     expiresIn: 30 * 60, // 30 minutes
     autoSignInAfterVerification: true,
-    sendVerificationEmail: async ({ user, url, token }) => {
+    sendVerificationEmail: async ({ user, url }) => {
       void sendEmail({
         to: user.email,
         subject: 'Verify your email',
-        body: `Verify your email by visiting ${url}?token=${token}`,
+        body: `Click the link to verify your email: ${url}`,
       })
     },
   },
