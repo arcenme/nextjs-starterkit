@@ -22,7 +22,7 @@ export function UserAvatar({
   return (
     <Avatar className={cn(className)} {...props}>
       <AvatarImage
-        src={image ?? undefined}
+        src={image || undefined}
         alt={name}
         className="aspect-square object-cover"
       />
