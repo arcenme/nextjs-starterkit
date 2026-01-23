@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { SocialSignOn } from '@/components/shared/social-signon'
 import { Card, CardContent } from '@/components/ui/card'
 import { Field, FieldDescription, FieldSeparator } from '@/components/ui/field'
+import { ROUTES } from '@/constants/routes'
 import { SignUpForm } from '@/features/signup/_components/signup-form'
 
 export default function SignUpPage() {
@@ -23,7 +24,8 @@ export default function SignUpPage() {
                   <SocialSignOn />
 
                   <FieldDescription className="text-center">
-                    Already have an account? <Link href="/login">Sign in</Link>
+                    Already have an account?{' '}
+                    <Link href={ROUTES.AUTH.SIGN_IN}>Sign in</Link>
                   </FieldDescription>
                 </Field>
               </Field>
@@ -41,8 +43,8 @@ export default function SignUpPage() {
           </Card>
           <FieldDescription className="px-6 text-center">
             By clicking continue, you agree to our&nbsp;
-            <Link href="/terms">Terms of Service</Link> and&nbsp;
-            <Link href="/privacy-policy">Privacy Policy</Link>.
+            <Link href={ROUTES.PUBLIC.TERMS}>Terms of Service</Link> and&nbsp;
+            <Link href={ROUTES.PUBLIC.PRIVACY_POLICY}>Privacy Policy</Link>.
           </FieldDescription>
         </div>
       </div>

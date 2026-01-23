@@ -4,24 +4,17 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { buttonVariants } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
+import { ROUTES } from '@/constants/routes'
 import { cn } from '@/lib/utils'
 
 const sidebarNavItems = [
   {
     title: 'Profile',
-    href: '/admin/settings/profile',
-  },
-  {
-    title: 'Account',
-    href: '/admin/settings/account',
+    href: ROUTES.ADMIN.SETTINGS.PROFILE,
   },
   {
     title: 'Security',
-    href: '/admin/settings/security',
-  },
-  {
-    title: 'Appearance',
-    href: '/admin/settings/appearance',
+    href: ROUTES.ADMIN.SETTINGS.SECURITY,
   },
 ]
 

@@ -1,5 +1,6 @@
 import { RedirectType, redirect } from 'next/navigation'
+import { ROUTES } from '@/constants/routes'
 
 export default async function Page() {
-  redirect('/admin/settings/profile', RedirectType.replace)
+  redirect(ROUTES.ADMIN.SETTINGS.PROFILE, RedirectType.replace)
 }

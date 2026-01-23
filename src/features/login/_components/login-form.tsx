@@ -16,6 +16,7 @@ import {
   FieldLabel,
 } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
+import { ROUTES } from '@/constants/routes'
 import { loginAction } from '@/features/login/actions'
 import { LoginSchema } from '@/features/login/types'
 
@@ -33,7 +34,7 @@ export function LoginForm() {
       actionProps: {
         onSuccess: () => {
           resetFormAndAction()
-          router.push('/admin/dashboard')
+          router.push(ROUTES.REDIRECT_AFTER_SIGN_IN)
         },
         onError: ({ error }) => {
           if (error.serverError) {
@@ -86,7 +87,7 @@ export function LoginForm() {
               <div className="flex items-center">
                 <FieldLabel htmlFor="password">Password</FieldLabel>
                 <Link
-                  href="/forgot-password"
+                  href={ROUTES.AUTH.FORGOT_PASSWORD}
                   className="ml-auto text-sm underline-offset-2 hover:underline"
                 >
                   Forgot your password?

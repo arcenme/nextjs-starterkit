@@ -3,6 +3,7 @@ import 'server-only'
 
 import { APIError } from 'better-auth'
 import { returnValidationErrors } from 'next-safe-action'
+import { ROUTES } from '@/constants/routes'
 import { LoginSchema } from '@/features/login/types'
 import { auth } from '@/lib/auth'
 import { safeAction } from '@/lib/safe-action'
@@ -17,7 +18,7 @@ export const loginAction = safeAction
           email: parsedInput.email,
           password: parsedInput.password,
           rememberMe: true,
-          callbackURL: '/admin/dashboard',
+          callbackURL: ROUTES.REDIRECT_AFTER_SIGN_IN,
         },
       })
       .catch((error) => {

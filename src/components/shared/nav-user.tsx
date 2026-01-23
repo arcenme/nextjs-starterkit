@@ -19,6 +19,7 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar'
 import { Skeleton } from '@/components/ui/skeleton'
+import { ROUTES } from '@/constants/routes'
 import { authClient } from '@/lib/auth-client'
 import { UserAvatar } from './user-avatar'
 
@@ -86,7 +87,7 @@ export function NavUser({
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <DropdownMenuItem asChild>
-                <Link href="/admin/settings/profile">
+                <Link href={ROUTES.ADMIN.SETTINGS.ROOT}>
                   <Settings2 />
                   Settings
                 </Link>
@@ -96,7 +97,10 @@ export function NavUser({
             <DropdownMenuItem
               onClick={async () =>
                 await authClient.signOut({
-                  fetchOptions: { onSuccess: () => router.push('/login') },
+                  fetchOptions: {
+                    onSuccess: () =>
+                      router.push(ROUTES.REDIRECT_AFTER_SIGN_OUT),
+                  },
                 })
               }
             >

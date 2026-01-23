@@ -8,6 +8,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
+import { ROUTES } from '@/constants/routes'
 
 interface BreadcrumbsProps {
   segments: string[]
@@ -25,7 +26,7 @@ export function DynamicBreadcrumbs({ segments }: BreadcrumbsProps) {
     <Breadcrumb>
       <BreadcrumbList>
         {filteredSegments.map((segment, index) => {
-          const href = `/admin/${filteredSegments.slice(0, index + 1).join('/')}`
+          const href = `${ROUTES.ADMIN.ROOT}/${filteredSegments.slice(0, index + 1).join('/')}`
 
           const label = segment
             .split('-')

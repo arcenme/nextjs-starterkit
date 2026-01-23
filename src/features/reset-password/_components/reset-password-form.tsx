@@ -15,6 +15,7 @@ import {
   FieldLabel,
 } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
+import { ROUTES } from '@/constants/routes'
 import { resetPasswordAction } from '@/features/reset-password/actions'
 import { ResetPasswordSchema } from '@/features/reset-password/types'
 
@@ -37,7 +38,7 @@ export function ResetPasswordForm() {
         onSuccess: () => {
           resetFormAndAction()
           toast.success('Password reset successfully')
-          router.push('/login')
+          router.push(ROUTES.AUTH.SIGN_IN)
         },
         onError: ({ error }) => {
           if (error.serverError) {

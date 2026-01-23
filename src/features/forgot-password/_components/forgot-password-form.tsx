@@ -12,6 +12,7 @@ import {
   FieldLabel,
 } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
+import { ROUTES } from '@/constants/routes'
 import {
   type ForgotPasswordInput,
   ForgotPasswordSchema,
@@ -31,11 +32,11 @@ export function ForgotPasswordForm() {
   async function onSubmit({ email }: ForgotPasswordInput) {
     await authClient.requestPasswordReset({
       email,
-      redirectTo: '/reset-password',
+      redirectTo: ROUTES.AUTH.RESET_PASSWORD,
       fetchOptions: {
         onSuccess: ({ data }) => {
           toast.success(data.message)
-          router.push('/login')
+          router.push(ROUTES.AUTH.SIGN_IN)
         },
         onError: ({ error }) => {
           toast.error(error.message)

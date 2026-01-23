@@ -7,6 +7,7 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { Field, FieldDescription } from '@/components/ui/field'
+import { ROUTES } from '@/constants/routes'
 import { ResetPasswordForm } from '@/features/reset-password/_components/reset-password-form'
 
 export default function ResetPasswordPage() {
@@ -25,7 +26,7 @@ export default function ResetPasswordPage() {
 
                 <FieldDescription className="text-center">
                   Don&apos;t have an account?&nbsp;
-                  <Link href="/signup">Sign up</Link>
+                  <Link href={ROUTES.AUTH.SIGN_UP}>Sign up</Link>
                 </FieldDescription>
               </Field>
             </CardContent>

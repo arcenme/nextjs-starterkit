@@ -4,6 +4,7 @@ import 'server-only'
 import { APIError } from 'better-auth'
 import { headers } from 'next/headers'
 import { returnValidationErrors } from 'next-safe-action'
+import { ROUTES } from '@/constants/routes'
 import { IMAGE_CONFIG } from '@/constants/storage'
 import {
   ChangeEmailSchema,
@@ -114,7 +115,7 @@ export const changeEmailAction = authAction
         headers: await headers(),
         body: {
           newEmail: parsedInput.email,
-          callbackURL: '/email-verified',
+          callbackURL: ROUTES.AUTH.EMAIL_VERIFIED,
         },
       })
       .catch((error) => {

@@ -7,6 +7,7 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { Field, FieldDescription } from '@/components/ui/field'
+import { ROUTES } from '@/constants/routes'
 import { ForgotPasswordForm } from '@/features/forgot-password/_components/forgot-password-form'
 
 export default function ForgotPasswordPage() {
@@ -27,7 +28,7 @@ export default function ForgotPasswordPage() {
 
                 <FieldDescription className="text-center">
                   Don&apos;t have an account?&nbsp;
-                  <Link href="/signup">Sign up</Link>
+                  <Link href={ROUTES.AUTH.SIGN_UP}>Sign up</Link>
                 </FieldDescription>
               </Field>
             </CardContent>

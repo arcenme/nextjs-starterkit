@@ -16,6 +16,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar'
+import { ROUTES } from '@/constants/routes'
 import { authClient } from '@/lib/auth-client'
 import { env } from '@/lib/env-client'
 
@@ -30,7 +31,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     navMain: [
       {
         title: 'Dashboard',
-        url: '/admin/dashboard',
+        url: ROUTES.ADMIN.DASHBOARD,
         icon: Home,
       },
       {
@@ -53,7 +54,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     navFooter: [
       {
         title: 'Repository',
-        url: 'https://github.com/arcenme/nextjs-starterkit',
+        url: ROUTES.GITHUB_REPO,
         icon: Folder,
       },
     ],
@@ -70,7 +71,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <Link href="/admin/dashboard">
+              <Link href={ROUTES.ADMIN.DASHBOARD}>
                 <AppLogo app={data.app} />
               </Link>
             </SidebarMenuButton>

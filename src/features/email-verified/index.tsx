@@ -4,6 +4,7 @@ import { AlertCircle, CheckCircle2 } from 'lucide-react'
 import Link from 'next/link'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
+import { ROUTES } from '@/constants/routes'
 
 export default function EmailVerifiedPage({ error }: { error?: string }) {
   const isInvalidToken =
@@ -27,7 +28,7 @@ export default function EmailVerifiedPage({ error }: { error?: string }) {
 
           <div className="flex flex-col gap-3">
             <Button asChild>
-              <Link href="/admin/dashboard">Go to Dashboard</Link>
+              <Link href={ROUTES.ADMIN.DASHBOARD}>Go to Dashboard</Link>
             </Button>
           </div>
         </div>
@@ -52,7 +53,7 @@ export default function EmailVerifiedPage({ error }: { error?: string }) {
 
         <div className="w-full flex items-center justify-center">
           <Button asChild>
-            <Link href="/admin/dashboard">Continue to Dashboard</Link>
+            <Link href={ROUTES.ADMIN.DASHBOARD}>Continue to Dashboard</Link>
           </Button>
         </div>
       </div>

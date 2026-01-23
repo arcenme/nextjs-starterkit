@@ -15,6 +15,7 @@ import {
   FieldLabel,
 } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
+import { ROUTES } from '@/constants/routes'
 import { signUpAction } from '@/features/signup/actions'
 import { SignUpSchema } from '@/features/signup/types'
 
@@ -35,7 +36,7 @@ export function SignUpForm() {
         onSuccess: () => {
           resetFormAndAction()
           toast.success('Please check your email for a verification link')
-          router.push('/login')
+          router.push(ROUTES.AUTH.SIGN_IN)
         },
         onError: ({ error }) => {
           if (error.serverError) {
