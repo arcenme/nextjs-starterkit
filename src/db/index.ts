@@ -4,7 +4,7 @@ import { drizzle } from 'drizzle-orm/node-postgres'
 import { Pool } from 'pg'
 
 import * as schema from '@/db/schemas'
-import { env } from '@/env/server'
+import { env } from '@/lib/env'
 
 declare global {
   var dbPool: Pool | undefined

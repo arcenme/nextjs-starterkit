@@ -1,5 +1,5 @@
-import '@/env/server'
-import '@/env/client'
+import '@/lib/env'
+import '@/lib/env-client'
 
 import type { NextConfig } from 'next'
 

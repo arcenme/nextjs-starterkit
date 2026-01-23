@@ -4,8 +4,8 @@ import { betterAuth } from 'better-auth'
 import { drizzleAdapter } from 'better-auth/adapters/drizzle'
 import { nextCookies } from 'better-auth/next-js'
 import { db } from '@/db'
-import { env } from '@/env/server'
 import { sendEmail } from '@/lib/email'
+import { env } from '@/lib/env'
 import { hashPassword, verifyPassword } from '@/lib/password'
 
 export const auth = betterAuth({

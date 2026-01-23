@@ -16,8 +16,8 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar'
-import { env } from '@/env/client'
 import { authClient } from '@/lib/auth-client'
+import { env } from '@/lib/env-client'
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { data: session, isPending } = authClient.useSession()

@@ -9,7 +9,7 @@ import {
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import { randomUUID } from 'crypto'
 import type { FileConfig, StorageVisibility } from '@/constants/storage'
-import { env } from '@/env/server'
+import { env } from '@/lib/env'
 
 const s3Client = new S3Client({
   region: env.S3_DEFAULT_REGION,
