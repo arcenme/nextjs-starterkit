@@ -1,11 +1,11 @@
 import EmailVerifiedPage from '@/features/email-verified'
 
 type PageProps = {
-  searchParams: Promise<{ error?: string }>
+  searchParams: Promise<{ error?: string; token?: string }>
 }
 
 export default async function Page({ searchParams }: PageProps) {
-  const params = await searchParams
+  const { error, token } = await searchParams
 
-  return <EmailVerifiedPage error={params.error} />
+  return <EmailVerifiedPage token={token} error={error} />
 }
