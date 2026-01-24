@@ -1,12 +1,11 @@
-import { headers } from 'next/headers'
-import { redirect } from 'next/navigation'
-import { ROUTES } from '@/constants/routes'
 import ResetPasswordPage from '@/features/reset-password'
-import { auth } from '@/lib/auth'
 
-export default async function Page() {
-  const session = await auth.api.getSession({ headers: await headers() })
-  if (session) redirect(ROUTES.REDIRECT_AFTER_SIGN_IN)
+type PageProps = {
+  searchParams: Promise<{ error?: string; token?: string }>
+}
 
-  return <ResetPasswordPage />
+export default async function Page({ searchParams }: PageProps) {
+  const { error, token } = await searchParams
+
+  return <ResetPasswordPage token={token} error={error} />
 }

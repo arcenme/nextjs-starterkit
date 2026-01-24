@@ -7,6 +7,7 @@ interface ButtonLoadingProps extends VariantProps<typeof buttonVariants> {
   disabled?: boolean
   loading?: boolean
   type?: 'button' | 'submit' | 'reset'
+  onClick?: () => void
   children: React.ReactNode
 }
 
@@ -17,6 +18,7 @@ export function ButtonLoading({
   type = 'button',
   disabled = false,
   loading = false,
+  onClick,
   children,
 }: ButtonLoadingProps) {
   return (
@@ -26,6 +28,7 @@ export function ButtonLoading({
       type={type}
       variant={variant}
       disabled={disabled || loading}
+      onClick={onClick}
     >
       {loading && <Spinner className="mr-2" />}
       {children}
