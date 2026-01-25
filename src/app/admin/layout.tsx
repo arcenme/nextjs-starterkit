@@ -6,6 +6,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from '@/components/ui/sidebar'
+import { SIDEBAR_COOKIE_NAME } from '@/constants/common'
 
 export default async function DashboardLayout({
   children,
@@ -15,7 +16,7 @@ export default async function DashboardLayout({
   breadcrumbs: React.ReactNode
 }>) {
   const cookieStore = await cookies()
-  const defaultOpen = cookieStore.get('sidebar_state')?.value === 'true'
+  const defaultOpen = cookieStore.get(SIDEBAR_COOKIE_NAME)?.value === 'true'
 
   return (
     <SidebarProvider defaultOpen={defaultOpen}>

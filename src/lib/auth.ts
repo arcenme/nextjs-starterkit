@@ -3,12 +3,16 @@ import 'server-only'
 import { betterAuth } from 'better-auth'
 import { drizzleAdapter } from 'better-auth/adapters/drizzle'
 import { nextCookies } from 'better-auth/next-js'
+import { twoFactor } from 'better-auth/plugins'
+import { AUTH_COOKIE_NAME } from '@/constants/common'
 import { db } from '@/db'
 import { sendEmail } from '@/lib/email'
 import { env } from '@/lib/env'
+import { env as envClient } from '@/lib/env-client'
 import { hashPassword, verifyPassword } from '@/lib/password'
 
 export const auth = betterAuth({
+  appName: envClient.NEXT_PUBLIC_APP_NAME,
   database: drizzleAdapter(db, {
     provider: 'pg',
     usePlural: true,
@@ -52,9 +56,9 @@ export const auth = betterAuth({
     },
   },
   advanced: {
-    cookiePrefix: env.BETTER_AUTH_COOKIE_PREFIX,
+    cookiePrefix: AUTH_COOKIE_NAME,
   },
-  plugins: [nextCookies()],
+  plugins: [nextCookies(), twoFactor()],
 })
 
 export type Session = typeof auth.$Infer.Session
