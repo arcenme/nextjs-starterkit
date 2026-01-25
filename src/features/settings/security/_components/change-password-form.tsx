@@ -59,7 +59,7 @@ export function ChangePasswordForm() {
         <div className="flex items-center justify-between">
           <div>
             <h3 className="font-medium">Password</h3>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               Update your password to keep your account secure
             </p>
           </div>
@@ -80,7 +80,7 @@ export function ChangePasswordForm() {
     <form className="max-w-lg space-y-6" onSubmit={handleSubmitWithAction}>
       <div className="space-y-1">
         <h3 className="font-medium">Change Password</h3>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-muted-foreground text-sm">
           Enter your current password and choose a new one
         </p>
       </div>

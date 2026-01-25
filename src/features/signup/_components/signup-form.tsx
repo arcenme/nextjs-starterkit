@@ -47,10 +47,10 @@ export function SignUpForm() {
     })
 
   return (
-    <form className="p-6 md:p-8 pb-0 md:pb-0" onSubmit={handleSubmitWithAction}>
-      <div className="flex flex-col items-center gap-2 text-center pb-6">
-        <h1 className="text-2xl font-bold">Create your account</h1>
-        <p className="text-muted-foreground text-sm text-balance">
+    <form className="p-6 pb-0 md:p-8 md:pb-0" onSubmit={handleSubmitWithAction}>
+      <div className="flex flex-col items-center gap-2 pb-6 text-center">
+        <h1 className="font-bold text-2xl">Create your account</h1>
+        <p className="text-balance text-muted-foreground text-sm">
           Enter your email below to create your account
         </p>
       </div>

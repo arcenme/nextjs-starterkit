@@ -8,7 +8,7 @@ import { LoginForm } from '@/features/login/_components/login-form'
 
 export default function LoginPage() {
   return (
-    <div className="bg-muted flex min-h-svh flex-col items-center justify-center p-6 md:p-10">
+    <div className="flex min-h-svh flex-col items-center justify-center bg-muted p-6 md:p-10">
       <div className="w-full max-w-sm md:max-w-4xl">
         <div className="flex flex-col gap-6">
           <Card className="overflow-hidden p-0">
@@ -16,7 +16,7 @@ export default function LoginPage() {
               <Field className="gap-0">
                 <LoginForm />
 
-                <Field orientation="vertical" className="p-6 md:p-8 gap-6">
+                <Field orientation="vertical" className="gap-6 p-6 md:p-8">
                   <FieldSeparator className="*:data-[slot=field-separator-content]:bg-card">
                     Or continue with
                   </FieldSeparator>
@@ -30,7 +30,7 @@ export default function LoginPage() {
                 </Field>
               </Field>
 
-              <div className="bg-muted relative hidden md:block">
+              <div className="relative hidden bg-muted md:block">
                 <Image
                   width={400}
                   height={400}

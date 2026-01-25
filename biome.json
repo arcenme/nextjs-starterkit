@@ -24,6 +24,16 @@
       },
       "suspicious": {
         "noUnknownAtRules": "off"
+      },
+      "nursery": {
+        "useSortedClasses": {
+          "fix": "safe",
+          "level": "error",
+          "options": {
+            "attributes": ["className", "class"],
+            "functions": ["cn", "clsx", "cva", "tw", "twMerge", "twJoin"]
+          }
+        }
       }
     },
     "domains": {

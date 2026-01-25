@@ -29,7 +29,7 @@ export function SetPasswordButton({ email }: { email: string }) {
       <div className="flex items-center justify-between gap-4">
         <div className="flex-1">
           <h3 className="font-medium">Password</h3>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-muted-foreground text-sm">
             Set a password to keep your account secure
           </p>
         </div>

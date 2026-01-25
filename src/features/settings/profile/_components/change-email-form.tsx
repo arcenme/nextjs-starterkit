@@ -99,7 +99,7 @@ export function ChangeEmailForm() {
               </div>
 
               {successMessage && (
-                <div className="rounded-md border border-green-200 bg-green-50 p-2 text-sm text-green-900">
+                <div className="rounded-md border border-green-200 bg-green-50 p-2 text-green-900 text-sm">
                   {successMessage}
                 </div>
               )}

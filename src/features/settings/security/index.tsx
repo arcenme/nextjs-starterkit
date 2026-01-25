@@ -20,8 +20,8 @@ export default async function SettingSecurityPage() {
     <>
       <h1 className="sr-only">Security Settings</h1>
       <header>
-        <h3 className="mb-0.5 text-base font-medium">Security</h3>
-        <p className="text-sm text-muted-foreground">
+        <h3 className="mb-0.5 font-medium text-base">Security</h3>
+        <p className="text-muted-foreground text-sm">
           Change your password and enable two-factor authentication
         </p>
       </header>

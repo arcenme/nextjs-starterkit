@@ -7,8 +7,8 @@ export default function SettingProfilePage() {
     <>
       <h1 className="sr-only">Profile Settings</h1>
       <header>
-        <h3 className="mb-0.5 text-base font-medium">Profile Information</h3>
-        <p className="text-sm text-muted-foreground">
+        <h3 className="mb-0.5 font-medium text-base">Profile Information</h3>
+        <p className="text-muted-foreground text-sm">
           Update your name dan email address
         </p>
       </header>

@@ -132,7 +132,7 @@ function NavMenuItemWithChildren({
                   <Link
                     href={subItem.url}
                     className={cn(
-                      'flex items-center gap-2 cursor-pointer',
+                      'flex cursor-pointer items-center gap-2',
                       isActive && 'bg-accent'
                     )}
                   >
@@ -164,7 +164,7 @@ function NavMenuItemWithChildren({
           </SidebarMenuButton>
         </CollapsibleTrigger>
         <CollapsibleContent>
-          <SidebarMenuSub className="pr-0 mr-0">
+          <SidebarMenuSub className="mr-0 pr-0">
             {item.items?.map((subItem) => (
               <SidebarMenuSubItem key={subItem.title}>
                 <SidebarMenuSubButton

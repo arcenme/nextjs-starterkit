@@ -246,7 +246,7 @@ export function ProfileDetailForm() {
                       type="button"
                       variant="destructive"
                       size="icon"
-                      className="absolute -top-1 -right-1 size-5 rounded-full p-0 shadow-sm"
+                      className="-top-1 -right-1 absolute size-5 rounded-full p-0 shadow-sm"
                       onClick={handleRemoveImage}
                       disabled={isDisabled}
                       aria-label="Remove image"
