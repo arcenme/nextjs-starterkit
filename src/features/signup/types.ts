@@ -1,13 +1,13 @@
 import z from 'zod'
-import { UserSchema } from '@/db/users/zod'
+import { PasswordSchema, UserSchema } from '@/db/users/zod'
 
 export const SignUpSchema = UserSchema.pick({
   name: true,
   email: true,
 })
   .extend({
-    password: z.string().trim().min(8).max(128),
-    confirmPassword: z.string().trim().min(8).max(128),
+    password: PasswordSchema,
+    confirmPassword: z.string().trim().min(1, 'Please confirm your password'),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: 'Passwords do not match',

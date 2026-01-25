@@ -1,9 +1,10 @@
 import { z } from 'zod'
+import { PasswordSchema } from '@/db/users/zod'
 
 export const ResetPasswordSchema = z
   .object({
-    newPassword: z.string().trim().min(8).max(128),
-    confirmPassword: z.string().trim().min(8).max(128),
+    newPassword: PasswordSchema,
+    confirmPassword: z.string().trim().min(1, 'Please confirm your password'),
     token: z.string().trim().min(1).max(255),
   })
   .refine((data) => data.newPassword === data.confirmPassword, {
