@@ -58,7 +58,7 @@ export const auth = betterAuth({
   advanced: {
     cookiePrefix: AUTH_COOKIE_NAME,
   },
-  plugins: [nextCookies(), twoFactor()],
+  plugins: [twoFactor(), nextCookies()],
 })
 
 export type Session = typeof auth.$Infer.Session
