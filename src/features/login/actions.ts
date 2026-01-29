@@ -2,6 +2,7 @@
 import 'server-only'
 
 import { APIError } from 'better-auth'
+import { redirect } from 'next/navigation'
 import { returnValidationErrors } from 'next-safe-action'
 import { ROUTES } from '@/constants/routes'
 import { LoginSchema } from '@/features/login/types'
@@ -12,7 +13,7 @@ export const loginAction = safeAction
   .metadata({ actionName: 'login' })
   .inputSchema(LoginSchema)
   .action(async ({ parsedInput }) => {
-    const data = await auth.api
+    const response = await auth.api
       .signInEmail({
         body: {
           email: parsedInput.email,
@@ -29,9 +30,13 @@ export const loginAction = safeAction
         }
       })
 
-    if (!data) {
+    if (!response) {
       returnValidationErrors(LoginSchema, {
         _errors: ['Invalid credentials'],
       })
+    }
+
+    if ('twoFactorRedirect' in response) {
+      redirect(ROUTES.AUTH.TWO_FACTOR)
     }
   })
