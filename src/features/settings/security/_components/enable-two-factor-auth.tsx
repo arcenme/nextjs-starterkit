@@ -398,26 +398,28 @@ export function EnableTwoFactorAuth() {
                   </code>
                 ))}
               </div>
-              <div className="flex justify-center gap-2">
-                <Button
-                  size="sm"
-                  variant="default"
-                  onClick={downloadBackupCodes}
-                  className="h-8"
-                >
-                  <Download className="mr-2 h-3.5 w-3.5" />
-                  Download
-                </Button>
-              </div>
               <p className="text-muted-foreground text-xs">
                 Each code can only be used once to access your account if you
                 lose your authenticator device.
               </p>
             </div>
 
-            <Button onClick={handleClose} className="w-full">
-              Done
-            </Button>
+            <Field orientation="vertical">
+              <Button
+                variant="default"
+                onClick={downloadBackupCodes}
+                className="w-full"
+              >
+                Download Codes
+              </Button>
+              <Button
+                onClick={handleClose}
+                className="w-full"
+                variant="outline"
+              >
+                Close
+              </Button>
+            </Field>
           </div>
         )}
       </Modal>
