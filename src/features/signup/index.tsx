@@ -13,18 +13,25 @@ export default function SignUpPage() {
         <div className="flex flex-col gap-6">
           <Card className="overflow-hidden p-0">
             <CardContent className="grid p-0 md:grid-cols-2">
-              <Field className="gap-0">
-                <SignUpForm />
+              <Field className="px-2 pb-4">
+                <div className="flex flex-col items-center gap-2 p-6 pb-0 text-center md:p-8 md:pb-0">
+                  <h1 className="font-bold text-2xl">Create your account</h1>
+                  <p className="text-balance text-muted-foreground text-sm">
+                    Enter your email below to create your account
+                  </p>
+                </div>
 
-                <Field orientation="vertical" className="gap-6 p-6 md:p-8">
-                  <FieldSeparator className="*:data-[slot=field-separator-content]:bg-card">
-                    Or continue with
-                  </FieldSeparator>
-
+                <Field orientation="vertical" className="gap-6 p-6">
                   <SocialSignOn />
 
+                  <FieldSeparator className="*:data-[slot=field-separator-content]:bg-card">
+                    or
+                  </FieldSeparator>
+
+                  <SignUpForm />
+
                   <FieldDescription className="text-center">
-                    Already have an account?{' '}
+                    Already have an account?&nbsp;
                     <Link href={ROUTES.AUTH.SIGN_IN}>Sign in</Link>
                   </FieldDescription>
                 </Field>

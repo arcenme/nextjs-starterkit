@@ -6,8 +6,8 @@ import { AlertCircleIcon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { Controller } from 'react-hook-form'
 import { toast } from 'sonner'
+import { ButtonLoading } from '@/components/shared/button-loading'
 import { Alert, AlertTitle } from '@/components/ui/alert'
-import { Button } from '@/components/ui/button'
 import {
   Field,
   FieldError,
@@ -47,13 +47,7 @@ export function SignUpForm() {
     })
 
   return (
-    <form className="p-6 pb-0 md:p-8 md:pb-0" onSubmit={handleSubmitWithAction}>
-      <div className="flex flex-col items-center gap-2 pb-6 text-center">
-        <h1 className="font-bold text-2xl">Create your account</h1>
-        <p className="text-balance text-muted-foreground text-sm">
-          Enter your email below to create your account
-        </p>
-      </div>
+    <form onSubmit={handleSubmitWithAction}>
       <FieldGroup className="gap-4">
         {action.hasErrored && action.result?.validationErrors?._errors && (
           <Alert variant="destructive" className="border-destructive">
@@ -146,14 +140,15 @@ export function SignUpForm() {
             />
           </Field>
         </Field>
-        <Field>
-          <Button
+        <Field orientation="horizontal">
+          <ButtonLoading
             type="submit"
+            loading={action.isExecuting}
             disabled={action.isExecuting}
-            className="cursor-pointer"
+            className="w-full cursor-pointer"
           >
             {action.isExecuting ? 'Creating...' : 'Create Account'}
-          </Button>
+          </ButtonLoading>
         </Field>
       </FieldGroup>
     </form>

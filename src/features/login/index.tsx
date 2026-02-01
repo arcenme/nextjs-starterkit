@@ -13,15 +13,22 @@ export default function LoginPage() {
         <div className="flex flex-col gap-6">
           <Card className="overflow-hidden p-0">
             <CardContent className="grid p-0 md:grid-cols-2">
-              <Field className="gap-0">
-                <LoginForm />
+              <Field className="px-2 pb-4">
+                <div className="flex flex-col items-center gap-2 p-6 pb-0 text-center md:p-8 md:pb-0">
+                  <h1 className="font-bold text-2xl">Welcome back</h1>
+                  <p className="text-balance text-muted-foreground">
+                    Sign in to your account
+                  </p>
+                </div>
 
-                <Field orientation="vertical" className="gap-6 p-6 md:p-8">
+                <Field orientation="vertical" className="gap-6 p-6">
+                  <SocialSignOn />
+
                   <FieldSeparator className="*:data-[slot=field-separator-content]:bg-card">
-                    Or continue with
+                    or
                   </FieldSeparator>
 
-                  <SocialSignOn />
+                  <LoginForm />
 
                   <FieldDescription className="text-center">
                     Don&apos;t have an account?&nbsp;
