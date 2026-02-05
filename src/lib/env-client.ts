@@ -5,9 +5,12 @@ export const env = createEnv({
   client: {
     NEXT_PUBLIC_APP_NAME: z.string().min(1),
     NEXT_PUBLIC_APP_URL: z.string().min(1),
+    NEXT_PUBLIC_BETTER_AUTH_URL: z.url().min(1),
   },
   runtimeEnv: {
     NEXT_PUBLIC_APP_NAME: process.env.NEXT_PUBLIC_APP_NAME,
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
+    NEXT_PUBLIC_BETTER_AUTH_URL: process.env.NEXT_PUBLIC_BETTER_AUTH_URL,
   },
+  skipValidation: process.env.NODE_ENV === 'development',
 })

@@ -21,4 +21,9 @@ export const UpdatePasswordSchema = z
     path: ['confirmPassword'],
   })
 
+export const TwoFactorPasswordSchema = z.object({
+  password: z.string().trim().min(1, 'Please enter your password'),
+})
+
 export type UpdatePasswordInput = z.infer<typeof UpdatePasswordSchema>
+export type TwoFactorPasswordInput = z.infer<typeof TwoFactorPasswordSchema>

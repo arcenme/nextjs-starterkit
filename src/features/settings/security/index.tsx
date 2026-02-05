@@ -3,6 +3,8 @@ import { redirect } from 'next/navigation'
 import { Separator } from '@/components/ui/separator'
 import { ROUTES } from '@/constants/routes'
 import { ChangePasswordForm } from '@/features/settings/security/_components/change-password-form'
+import { DisableTwoFactorAuth } from '@/features/settings/security/_components/disable-two-factor-auth'
+import { EnableTwoFactorAuth } from '@/features/settings/security/_components/enable-two-factor-auth'
 import { SetPasswordButton } from '@/features/settings/security/_components/set-password-button'
 import { auth } from '@/lib/auth'
 
@@ -12,10 +14,11 @@ export default async function SettingSecurityPage() {
     auth.api.listUserAccounts({ headers: await headers() }),
   ])
 
-  const hasPasswordAccount = accounts.some((a) => a.providerId === 'credential')
   if (!session?.user.email) return redirect(ROUTES.AUTH.SIGN_IN)
 
-  // TODO: Implement security settings
+  const hasPasswordAccount = accounts.some((a) => a.providerId === 'credential')
+  const isTwoFactorEnabled = session?.user.twoFactorEnabled ?? false
+
   return (
     <>
       <h1 className="sr-only">Security Settings</h1>
@@ -29,13 +32,20 @@ export default async function SettingSecurityPage() {
       <Separator className="max-w-lg" />
 
       <div className="space-y-6 md:space-y-8">
+        {/* Password */}
         {!hasPasswordAccount ? (
           <SetPasswordButton email={session?.user.email} />
         ) : (
           <ChangePasswordForm />
         )}
 
-        {hasPasswordAccount && <p>Enable 2 Factor Authentication</p>}
+        {/* Tow-Factor Authentication */}
+        {isTwoFactorEnabled ? (
+          <DisableTwoFactorAuth />
+        ) : (
+          <EnableTwoFactorAuth />
+        )}
+
         <p>Logout of all sessions</p>
       </div>
     </>

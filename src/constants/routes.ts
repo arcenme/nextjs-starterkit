@@ -10,6 +10,7 @@ export const ROUTES = {
     FORGOT_PASSWORD: '/forgot-password',
     RESET_PASSWORD: '/reset-password',
     EMAIL_VERIFIED: '/email-verified',
+    TWO_FACTOR: '/2fa',
   },
   ADMIN: {
     ROOT: '/admin',
