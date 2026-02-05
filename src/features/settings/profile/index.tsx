@@ -7,13 +7,14 @@ export default function SettingProfilePage() {
     <>
       <h1 className="sr-only">Profile Settings</h1>
       <header>
-        <h3 className="mb-0.5 font-medium text-base">Profile Information</h3>
+        <h3 className="mb-0.5 font-semibold text-base">Profile Information</h3>
         <p className="text-muted-foreground text-sm">
           Update your name dan email address
         </p>
       </header>
+      <Separator className="max-w-md" />
 
-      <div className="space-y-12">
+      <div className="space-y-8">
         <ProfileDetailForm />
         <Separator className="max-w-md" />
         <ChangeEmailForm />

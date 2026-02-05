@@ -232,8 +232,6 @@ export function ProfileDetailForm() {
           control={form.control}
           render={({ fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor="image">Avatar</FieldLabel>
-
               <div className="flex items-center gap-4">
                 <div className="relative shrink-0">
                   <UserAvatar

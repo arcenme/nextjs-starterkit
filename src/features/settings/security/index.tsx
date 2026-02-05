@@ -23,7 +23,7 @@ export default async function SettingSecurityPage() {
     <>
       <h1 className="sr-only">Security Settings</h1>
       <header>
-        <h3 className="mb-0.5 font-medium text-base">Security</h3>
+        <h3 className="mb-0.5 font-semibold text-base">Security</h3>
         <p className="text-muted-foreground text-sm">
           Change your password and enable two-factor authentication
         </p>
@@ -45,8 +45,6 @@ export default async function SettingSecurityPage() {
         ) : (
           <EnableTwoFactorAuth />
         )}
-
-        <p>Logout of all sessions</p>
       </div>
     </>
   )
