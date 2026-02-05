@@ -16,6 +16,10 @@ const sidebarNavItems = [
     title: 'Security',
     href: ROUTES.ADMIN.SETTINGS.SECURITY,
   },
+  {
+    title: 'Sessions',
+    href: ROUTES.ADMIN.SETTINGS.SESSION_MANAGEMENT,
+  },
 ]
 
 interface SettingsLayoutProps {
@@ -45,8 +49,8 @@ export default function SettingsLayout({ children }: SettingsLayoutProps) {
                 href={item.href}
                 className={cn(
                   buttonVariants({ variant: 'ghost', size: 'sm' }),
-                  'w-full justify-start font-semibold',
-                  pathname === item.href && 'bg-muted'
+                  'w-full justify-start font-normal',
+                  pathname === item.href && 'bg-muted font-semibold'
                 )}
               >
                 {item.title}
