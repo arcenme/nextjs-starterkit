@@ -20,6 +20,7 @@ export const ROUTES = {
       PROFILE: '/admin/settings/profile',
       SECURITY: '/admin/settings/security',
       SESSION_MANAGEMENT: '/admin/settings/session-management',
+      APPEARANCE: '/admin/settings/appearance',
     },
   },
   GITHUB_REPO: 'https://github.com/arcenme/nextjs-starterkit',
