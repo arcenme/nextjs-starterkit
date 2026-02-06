@@ -7,6 +7,7 @@ import { twoFactor } from 'better-auth/plugins'
 import { AUTH_COOKIE_NAME } from '@/constants/common'
 import { db } from '@/db'
 import { sendEmail } from '@/lib/email'
+import { env } from '@/lib/env'
 import { env as envClient } from '@/lib/env-client'
 import { hashPassword, verifyPassword } from '@/lib/password'
 

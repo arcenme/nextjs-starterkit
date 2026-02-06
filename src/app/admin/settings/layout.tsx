@@ -20,6 +20,10 @@ const sidebarNavItems = [
     title: 'Sessions',
     href: ROUTES.ADMIN.SETTINGS.SESSION_MANAGEMENT,
   },
+  {
+    title: 'Appearance',
+    href: ROUTES.ADMIN.SETTINGS.APPEARANCE,
+  },
 ]
 
 interface SettingsLayoutProps {
