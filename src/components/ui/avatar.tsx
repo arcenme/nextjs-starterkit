@@ -1,8 +1,8 @@
 'use client'
 
 import * as AvatarPrimitive from '@radix-ui/react-avatar'
+import { getImageProps } from 'next/image'
 import type * as React from 'react'
-
 import { cn } from '@/lib/utils'
 
 function Avatar({
@@ -25,13 +25,31 @@ function AvatarImage({
   className,
   ...props
 }: React.ComponentProps<typeof AvatarPrimitive.Image>) {
-  return (
-    <AvatarPrimitive.Image
-      data-slot="avatar-image"
-      className={cn('aspect-square size-full', className)}
-      {...props}
-    />
-  )
+  const { src, alt, width, height, ...rest } = props
+
+  if (!src) {
+    return (
+      <AvatarPrimitive.Image
+        data-slot="avatar-image"
+        className={cn('aspect-square size-full', className)}
+        {...props}
+      />
+    )
+  }
+
+  const size =
+    width && height
+      ? { width: Number(width), height: Number(height) }
+      : { fill: true }
+
+  const { props: nextOptimizedProps } = getImageProps({
+    src: String(src),
+    alt: String(alt),
+    ...size,
+    ...rest,
+  })
+
+  return <AvatarPrimitive.Image {...nextOptimizedProps} />
 }
 
 function AvatarFallback({
