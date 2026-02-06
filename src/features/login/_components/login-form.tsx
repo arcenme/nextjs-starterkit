@@ -7,8 +7,8 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Controller } from 'react-hook-form'
 import { toast } from 'sonner'
+import { ButtonLoading } from '@/components/shared/button-loading'
 import { Alert, AlertTitle } from '@/components/ui/alert'
-import { Button } from '@/components/ui/button'
 import {
   Field,
   FieldError,
@@ -45,13 +45,7 @@ export function LoginForm() {
     })
 
   return (
-    <form className="p-6 pb-0 md:p-8 md:pb-0" onSubmit={handleSubmitWithAction}>
-      <div className="flex flex-col items-center gap-2 pb-6 text-center">
-        <h1 className="font-bold text-2xl">Welcome back</h1>
-        <p className="text-balance text-muted-foreground">
-          Login to your Acme Inc account
-        </p>
-      </div>
+    <form onSubmit={handleSubmitWithAction}>
       <FieldGroup className="gap-4">
         {action.hasErrored && action.result?.validationErrors?._errors && (
           <Alert variant="destructive" className="border-destructive">
@@ -87,6 +81,7 @@ export function LoginForm() {
               <div className="flex items-center">
                 <FieldLabel htmlFor="password">Password</FieldLabel>
                 <Link
+                  tabIndex={-1}
                   href={ROUTES.AUTH.FORGOT_PASSWORD}
                   className="ml-auto text-sm underline-offset-2 hover:underline"
                 >
@@ -106,14 +101,15 @@ export function LoginForm() {
           )}
         />
 
-        <Field>
-          <Button
+        <Field orientation="horizontal">
+          <ButtonLoading
             type="submit"
+            loading={action.isExecuting}
             disabled={action.isExecuting}
-            className="cursor-pointer"
+            className="w-full cursor-pointer"
           >
-            {action.isExecuting ? 'Loading ...' : 'Login'}
-          </Button>
+            {action.isExecuting ? 'Signing in...' : 'Sign in'}
+          </ButtonLoading>
         </Field>
       </FieldGroup>
     </form>

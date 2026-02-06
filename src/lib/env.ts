@@ -8,6 +8,8 @@ export const env = createEnv({
     DATABASE_URL: z.url().min(1),
     BETTER_AUTH_SECRET: z.string().min(1),
     BETTER_AUTH_TELEMETRY: z.coerce.number().min(0).max(1).default(0),
+    GOOGLE_CLIENT_ID: z.string().min(1),
+    GOOGLE_CLIENT_SECRET: z.string().min(1),
     S3_ENDPOINT: z.string().min(1),
     S3_DEFAULT_REGION: z.string().min(1).default('auto'),
     S3_ACCESS_KEY_ID: z.string().min(1),
