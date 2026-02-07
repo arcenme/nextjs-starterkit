@@ -1,5 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
+import { MagicLinkButton } from '@/components/shared/magic-link-button'
 import { SocialSignOn } from '@/components/shared/social-signon'
 import { Card, CardContent } from '@/components/ui/card'
 import { Field, FieldDescription, FieldSeparator } from '@/components/ui/field'
@@ -22,7 +23,10 @@ export default function SignUpPage() {
                 </div>
 
                 <Field orientation="vertical" className="gap-6 p-6">
-                  <SocialSignOn />
+                  <div className="space-y-2.5">
+                    <SocialSignOn />
+                    <MagicLinkButton />
+                  </div>
 
                   <FieldSeparator className="*:data-[slot=field-separator-content]:bg-card">
                     or

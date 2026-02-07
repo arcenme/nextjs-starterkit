@@ -3,7 +3,7 @@ import 'server-only'
 import { betterAuth } from 'better-auth'
 import { drizzleAdapter } from 'better-auth/adapters/drizzle'
 import { nextCookies } from 'better-auth/next-js'
-import { twoFactor } from 'better-auth/plugins'
+import { magicLink, twoFactor } from 'better-auth/plugins'
 import { AUTH_COOKIE_NAME } from '@/constants/common'
 import { db } from '@/db'
 import { sendEmail } from '@/lib/email'
@@ -66,7 +66,23 @@ export const auth = betterAuth({
   advanced: {
     cookiePrefix: AUTH_COOKIE_NAME,
   },
-  plugins: [twoFactor(), nextCookies()],
+  plugins: [
+    magicLink({
+      rateLimit: {
+        window: 60, // 1 minute
+        max: 2, // 3 requests
+      },
+      sendMagicLink: async ({ email, url }) => {
+        void sendEmail({
+          to: email,
+          subject: 'Sign in with magic link',
+          body: `Sign in with magic link by visiting ${url}`,
+        })
+      },
+    }),
+    twoFactor(),
+    nextCookies(),
+  ],
 })
 
 export type Session = typeof auth.$Infer.Session

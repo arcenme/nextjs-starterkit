@@ -11,6 +11,7 @@ export const ROUTES = {
     RESET_PASSWORD: '/reset-password',
     EMAIL_VERIFIED: '/email-verified',
     TWO_FACTOR: '/2fa',
+    MAGIC_LINK: '/magic-link',
   },
   ADMIN: {
     ROOT: '/admin',
