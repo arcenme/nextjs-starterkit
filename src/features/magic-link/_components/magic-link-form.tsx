@@ -8,7 +8,7 @@ import { Controller } from 'react-hook-form'
 import { toast } from 'sonner'
 import { ButtonLoading } from '@/components/shared/button-loading'
 import { Button } from '@/components/ui/button'
-import { Field, FieldError } from '@/components/ui/field'
+import { Field, FieldError, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { sendMagicLinkAction } from '@/features/magic-link/actions'
 import { MagicLinkSchema } from '@/features/magic-link/types'
@@ -81,6 +81,9 @@ export function MagicLinkForm() {
         control={form.control}
         render={({ field, fieldState }) => (
           <Field data-invalid={fieldState.invalid}>
+            <FieldLabel htmlFor="email" className="sr-only">
+              Email
+            </FieldLabel>
             <Input
               {...field}
               id="email"
