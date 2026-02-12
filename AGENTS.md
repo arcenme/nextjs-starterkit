@@ -56,37 +56,37 @@ All tests are organized in `src/__tests__/` with separate folders for **unit** a
 
 ```
 src/__tests__/
-  unit/                        # Unit tests (isolated, fast)
-    components/                # UI component tests
-      button.test.tsx
-    hooks/                     # React hook tests
-      use-mobile.test.ts
-    lib/                       # Utility function tests
+  unit/                        # Unit tests (isolated logic)
+    lib/                       # Utility functions (utils, password, etc.)
       utils.test.ts
-    features/                  # Feature component tests (isolated)
+    hooks/                     # Custom hooks
+      use-mobile.test.ts
+    components/                # Simple UI components ONLY
+      button.test.tsx          # Basic components from src/components/ui/
+    features/                  # Actions and types only (NOT UI components)
       login/
-        _components/
-          login-form.test.tsx
-  integration/                 # Integration tests (multiple units)
-    features/                  # Full feature flows
-      login.test.tsx           # Form + validation + API + navigation
-    database/                  # Database integration tests
-      users.test.ts            # Real Drizzle queries (mocked)
-    lib/                       # External service integration
+        actions.test.ts        # Server action logic
+        types.test.ts          # Zod schema validation
+  integration/                 # Integration tests (workflows)
+    features/                  # Full feature pages and forms
+      login.test.tsx           # Login form + validation + API + redirect
+    database/                  # Database operations
+      users.test.ts            # Drizzle query handlers
+    lib/                       # External services
       storage.test.ts          # S3, email, etc.
 ```
 
-**Unit vs Integration Tests:**
+**Testing Strategy:**
 
-- **Unit tests**: Test single units in isolation, mock all dependencies
-  - Fast, focused, easy to debug
-  - Located in `unit/` folder
-  - Example: Testing `<Button>` click handler
+| Type | Use For | Location |
+|------|---------|----------|
+| **Unit tests** | Actions, types, utils, hooks, simple components | `src/__tests__/unit/` |
+| **Integration tests** | Feature pages, complex forms, workflows | `src/__tests__/integration/` |
 
-- **Integration tests**: Test multiple units working together
-  - Slower, test real interactions with mocked external services
-  - Located in `integration/` folder  
-  - Example: Testing login form → validation → API call → redirect flow
+**Examples:**
+- ✅ Unit test: `cn()` utility, `useMobile()` hook, `loginAction()` logic
+- ✅ Integration test: Login page with React Hook Form, database operations
+- ❌ Don't unit test: Complex forms in `features/*/_components/` (use integration tests)
 
 Import testing utilities from `@/lib/vitest`:
 
@@ -114,13 +114,13 @@ src/
   constants/                   # App constants
   providers/                   # React context providers
   __tests__/                   # Test files organized by type
-    unit/                      # Unit tests (isolated, fast)
-      components/              # UI component tests
-      hooks/                   # React hook tests
-      lib/                     # Utility function tests
-      features/                # Feature component tests
-    integration/               # Integration tests (multiple units)
-      features/                # Full feature flows
+    unit/                      # Unit tests (isolated logic)
+      lib/                     # Utility functions (utils, password, etc.)
+      hooks/                   # Custom hooks
+      components/              # Simple UI components ONLY
+      features/                # Actions and types only (NOT UI components)
+    integration/               # Integration tests (workflows)
+      features/                # Full feature pages and forms
       database/                # Database integration tests
       lib/                     # External service integration
 ```
@@ -264,6 +264,35 @@ export const userSchema = z.object({
 7. **Images** - Use `next/image` with configured remotePatterns
 8. **Icons** - Use `lucide-react`
 9. **Forms** - Use React Hook Form + Zod with shadcn/ui patterns
+
+## Skills
+
+This project includes custom skills for common tasks. Skills are discovered automatically by OpenCode from `.agents/skills/` directory.
+
+### Available Skills
+
+- **create-unit-test** - Generate Vitest unit tests following project conventions
+  - Trigger: Type `/skill:create-unit-test` in chat
+  - Creates tests in `src/__tests__/unit/` with proper structure
+  - Location: `.agents/skills/create-unit-test/SKILL.md`
+
+- **create-integration-test** - Generate Vitest integration tests for feature flows
+  - Trigger: Type `/skill:create-integration-test` in chat
+  - Creates tests in `src/__tests__/integration/` for testing multiple units together
+  - Location: `.agents/skills/create-integration-test/SKILL.md`
+
+### How to Use Skills
+
+1. **Invoke a skill**: Type `/skill:create-unit-test` or `/skill:create-integration-test`
+2. **Or ask directly**: Say "create a unit test for Button component"
+3. **View documentation**: Check the SKILL.md in each skill folder
+
+### Creating New Skills
+
+To add a new skill:
+1. Create folder: `.agents/skills/<skill-name>/`
+2. Add `SKILL.md` with YAML frontmatter (name, description) and instructions
+3. Update AGENTS.md documentation
 
 ## Pre-commit Checklist
 
