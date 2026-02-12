@@ -20,7 +20,6 @@ describe('cn', () => {
 
   it('merges Tailwind classes correctly', () => {
     const result = cn('px-4 py-2', 'px-6')
-    // Tailwind merge should keep the last conflicting class
     expect(result).toBe('py-2 px-6')
   })
 
@@ -31,4 +30,17 @@ describe('cn', () => {
     })
     expect(result).toBe('base text-red-500')
   })
+
+  it('handles empty inputs', () => {
+    expect(cn()).toBe('')
+  })
+
+  it('handles arrays of classes', () => {
+    const result = cn(['class1', 'class2'], 'class3')
+    expect(result).toBe('class1 class2 class3')
+  })
 })
+
+// Note: calculateSHA256 tests removed as they require browser File API
+// which is not available in jsdom. These should be tested in integration
+// tests with proper browser environment or mocked.

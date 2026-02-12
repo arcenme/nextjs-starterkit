@@ -1,70 +1,125 @@
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { LoginForm } from '@/features/login/_components/login-form'
+import { render, screen, userEvent, waitFor } from '@/lib/vitest'
 
 // Mock the server action
+const mockLoginAction = vi.fn()
 vi.mock('@/features/login/actions', () => ({
-  loginAction: vi.fn(),
+  loginAction: (...args: unknown[]) => mockLoginAction(...args),
 }))
 
-// Mock the auth client
-vi.mock('@/lib/auth-client', () => ({
-  authClient: {
-    signIn: {
-      email: vi.fn(),
-    },
-  },
-}))
-
-// Mock next/navigation
+// Mock the router
+const mockPush = vi.fn()
 vi.mock('next/navigation', () => ({
   useRouter: () => ({
-    push: vi.fn(),
+    push: mockPush,
   }),
 }))
 
+// Mock sonner toast
+vi.mock('sonner', () => ({
+  toast: {
+    error: vi.fn(),
+    success: vi.fn(),
+  },
+}))
+
 describe('Login Integration', () => {
-  it('completes full login flow with validation', async () => {
-    // This test would import and test the actual LoginForm component
-    // with mocked server actions and navigation
-    //
-    // Example:
-    // render(<LoginForm />)
-    //
-    // await userEvent.type(screen.getByLabel(/email/i), 'test@example.com')
-    // await userEvent.type(screen.getByLabel(/password/i), 'password123')
-    // await userEvent.click(screen.getByRole('button', { name: /sign in/i }))
-    //
-    // expect(mockLoginAction).toHaveBeenCalledWith({
-    //   email: 'test@example.com',
-    //   password: 'password123'
-    // })
-    // expect(mockRouter.push).toHaveBeenCalledWith('/dashboard')
-
-    expect(true).toBe(true) // Placeholder
+  beforeEach(() => {
+    vi.clearAllMocks()
   })
 
-  it('handles login errors gracefully', async () => {
-    // Test error handling in the full flow
-    // Example:
-    // mockLoginAction.mockRejectedValue(new Error('Invalid credentials'))
-    //
-    // render(<LoginForm />)
-    // ... fill form and submit ...
-    //
-    // expect(await screen.findByText(/invalid credentials/i)).toBeInTheDocument()
+  it('renders login form with email and password fields', () => {
+    render(<LoginForm />)
 
-    expect(true).toBe(true) // Placeholder
+    expect(screen.getByLabelText(/email/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/password/i)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument()
   })
 
-  it('validates form before submission', async () => {
-    // Test form validation integration with React Hook Form + Zod
-    // Example:
-    // render(<LoginForm />)
-    // await userEvent.click(screen.getByRole('button', { name: /sign in/i }))
-    //
-    // expect(screen.getByText(/email is required/i)).toBeInTheDocument()
-    // expect(screen.getByText(/password is required/i)).toBeInTheDocument()
-    // expect(mockLoginAction).not.toHaveBeenCalled()
+  it('allows entering email and password', async () => {
+    render(<LoginForm />)
 
-    expect(true).toBe(true) // Placeholder
+    const emailInput = screen.getByLabelText(/email/i)
+    const passwordInput = screen.getByLabelText(/password/i)
+
+    await userEvent.type(emailInput, 'test@example.com')
+    await userEvent.type(passwordInput, 'password123')
+
+    expect(emailInput).toHaveValue('test@example.com')
+    expect(passwordInput).toHaveValue('password123')
+  })
+
+  it('has working form submission button', async () => {
+    render(<LoginForm />)
+
+    const submitButton = screen.getByRole('button', { name: /sign in/i })
+
+    // Button should be enabled initially
+    expect(submitButton).not.toBeDisabled()
+
+    // Form should be submittable
+    await userEvent.click(submitButton)
+  })
+
+  it('has forgot password link', () => {
+    render(<LoginForm />)
+
+    const forgotLink = screen.getByText(/forgot your password/i)
+    expect(forgotLink).toBeInTheDocument()
+    expect(forgotLink).toHaveAttribute('href', '/forgot-password')
+  })
+
+  it('shows loading state when form is submitting', async () => {
+    // Create a delayed promise to test loading state
+    let resolveAction: (value: unknown) => void
+    const actionPromise = new Promise((resolve) => {
+      resolveAction = resolve
+    })
+    mockLoginAction.mockReturnValue(actionPromise)
+
+    render(<LoginForm />)
+
+    // Fill form
+    await userEvent.type(screen.getByLabelText(/email/i), 'test@example.com')
+    await userEvent.type(screen.getByLabelText(/password/i), 'password123')
+
+    // Submit
+    const submitButton = screen.getByRole('button', { name: /sign in/i })
+    await userEvent.click(submitButton)
+
+    // Wait for loading state to appear
+    await waitFor(() => {
+      expect(screen.getByText(/signing in/i)).toBeInTheDocument()
+    })
+
+    // Resolve action and wait for completion
+    // biome-ignore lint/style/noNonNullAssertion: False positive
+    resolveAction!({ success: true })
+
+    await waitFor(() => {
+      expect(screen.queryByText(/signing in/i)).not.toBeInTheDocument()
+    })
+  })
+
+  it('submits form with entered values', async () => {
+    mockLoginAction.mockResolvedValue({ success: true })
+
+    render(<LoginForm />)
+
+    // Fill form
+    await userEvent.type(screen.getByLabelText(/email/i), 'user@example.com')
+    await userEvent.type(
+      screen.getByLabelText(/password/i),
+      'securepassword123'
+    )
+
+    // Submit
+    await userEvent.click(screen.getByRole('button', { name: /sign in/i }))
+
+    // Verify action was called
+    await waitFor(() => {
+      expect(mockLoginAction).toHaveBeenCalled()
+    })
   })
 })

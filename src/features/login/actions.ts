@@ -24,14 +24,14 @@ export const loginAction = safeAction
       })
       .catch((error) => {
         if (error instanceof APIError) {
-          returnValidationErrors(LoginSchema, {
+          return returnValidationErrors(LoginSchema, {
             _errors: [error.message],
           })
         }
       })
 
     if (!response) {
-      returnValidationErrors(LoginSchema, {
+      return returnValidationErrors(LoginSchema, {
         _errors: ['Invalid credentials'],
       })
     }
