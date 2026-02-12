@@ -49,16 +49,105 @@ import { render, screen, userEvent } from '@/lib/vitest'
 
 ```typescript
 import { describe, it, expect, vi } from 'vitest'
-import { loginAction } from '@/features/login/actions'
+import { signUpAction } from '@/features/signup/actions'
+import { APIError } from 'better-auth'
 
+// Mock server-only import to avoid import errors in tests
+vi.mock('server-only', () => ({}))
+
+// Mock all external dependencies
 vi.mock('@/lib/auth', () => ({
-  auth: { api: { signInEmail: vi.fn() } }
+  auth: {
+    api: {
+      signUpEmail: vi.fn(),
+    },
+  },
 }))
 
-describe('loginAction', () => {
-  it('validates input before processing', async () => {
-    const result = await loginAction({ email: 'invalid', password: '123' })
-    expect(result.validationErrors).toBeDefined()
+vi.mock('@/lib/safe-action', () => ({
+  safeAction: {
+    metadata: () => ({
+      inputSchema: {},
+      action: vi.fn().mockImplementation((fn) => fn),
+    }),
+  },
+}))
+
+vi.mock('next-safe-action', () => ({
+  returnValidationErrors: vi.fn(),
+}))
+
+vi.mock('@/constants/routes', () => ({
+  ROUTES: {
+    REDIRECT_AFTER_SIGN_IN: '/dashboard',
+  },
+}))
+
+describe('signUpAction', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('successfully processes valid sign-up data', async () => {
+    const mockSession = { user: { id: '1', email: 'test@example.com' } }
+    const mockAuth = await import('@/lib/auth')
+    mockAuth.auth.api.signUpEmail.mockResolvedValue(mockSession)
+
+    const input = {
+      name: 'John Doe',
+      email: 'john@example.com',
+      password: 'Password123!',
+      confirmPassword: 'Password123!',
+    }
+
+    await signUpAction({ parsedInput: input })
+
+    expect(mockAuth.auth.api.signUpEmail).toHaveBeenCalledWith({
+      body: {
+        name: input.name,
+        email: input.email,
+        password: input.password,
+        callbackURL: '/dashboard',
+      },
+    })
+  })
+
+  it('handles APIError from auth service', async () => {
+    const apiError = new APIError('BAD_REQUEST', 'Email already exists')
+    const mockAuth = await import('@/lib/auth')
+    const mockReturnValidationErrors = await import('next-safe-action')
+    mockAuth.auth.api.signUpEmail.mockRejectedValue(apiError)
+
+    const input = {
+      name: 'John Doe',
+      email: 'existing@example.com',
+      password: 'Password123!',
+      confirmPassword: 'Password123!',
+    }
+
+    await signUpAction({ parsedInput: input })
+
+    expect(mockReturnValidationErrors.returnValidationErrors).toHaveBeenCalled()
+  })
+
+  it('handles null session response', async () => {
+    const mockAuth = await import('@/lib/auth')
+    const mockReturnValidationErrors = await import('next-safe-action')
+    mockAuth.auth.api.signUpEmail.mockResolvedValue(null)
+
+    const input = {
+      name: 'John Doe',
+      email: 'john@example.com',
+      password: 'Password123!',
+      confirmPassword: 'Password123!',
+    }
+
+    await signUpAction({ parsedInput: input })
+
+    expect(mockReturnValidationErrors.returnValidationErrors).toHaveBeenCalledWith(
+      expect.anything(),
+      { _errors: ['Invalid credentials'] }
+    )
   })
 })
 ```
@@ -101,8 +190,63 @@ pnpm test:run -- src/__tests__/unit/
 pnpm test:run -- src/__tests__/unit/lib/utils.test.ts
 ```
 
+## Handling server-only imports
+
+Server actions often import `'server-only'` which causes errors in test environments. **Always mock it first:**
+
+```typescript
+// Mock server-only at the top of your test file
+vi.mock('server-only', () => ({}))
+```
+
+## Common mocking patterns
+
+### Safe Action Pattern
+```typescript
+vi.mock('@/lib/safe-action', () => ({
+  safeAction: {
+    metadata: () => ({
+      inputSchema: {},
+      action: vi.fn().mockImplementation((fn) => fn),
+    }),
+  },
+}))
+```
+
+### Next Safe Action Pattern
+```typescript
+vi.mock('next-safe-action', () => ({
+  returnValidationErrors: vi.fn(),
+}))
+```
+
+### Auth Service Pattern
+```typescript
+vi.mock('@/lib/auth', () => ({
+  auth: {
+    api: {
+      signUpEmail: vi.fn(),
+      signInEmail: vi.fn(),
+      // other auth methods
+    },
+  },
+}))
+```
+
+### Constants Pattern
+```typescript
+vi.mock('@/constants/routes', () => ({
+  ROUTES: {
+    REDIRECT_AFTER_SIGN_IN: '/dashboard',
+  },
+}))
+```
+
 ## Key principles
 
 1. **Fast and isolated** - Mock all dependencies
-2. **No complex UI** - Forms with React Hook Form are integration tests
-3. **Test logic, not integration** - Focus on single units
+2. **Mock server-only** - Always mock `'server-only'` import first
+3. **No complex UI** - Forms with React Hook Form are integration tests
+4. **Test logic, not integration** - Focus on single units
+5. **Clear mocks** - Use `vi.clearAllMocks()` in beforeEach
+6. **Dynamic imports** - Use `await import()` to access mocked modules in tests

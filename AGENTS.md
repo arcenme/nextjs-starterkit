@@ -94,6 +94,73 @@ Import testing utilities from `@/lib/vitest`:
 import { render, screen, userEvent, vi } from '@/lib/vitest'
 ```
 
+### Testing Server Actions
+
+Server actions often import `'server-only'` which causes test errors. **Always mock it first:**
+
+```typescript
+// Mock server-only at the top of your test file
+vi.mock('server-only', () => ({}))
+```
+
+Then mock all other dependencies:
+
+```typescript
+// Mock auth service
+vi.mock('@/lib/auth', () => ({
+  auth: {
+    api: {
+      signUpEmail: vi.fn(),
+      signInEmail: vi.fn(),
+    },
+  },
+}))
+
+// Mock safe action
+vi.mock('@/lib/safe-action', () => ({
+  safeAction: {
+    metadata: () => ({
+      inputSchema: {},
+      action: vi.fn().mockImplementation((fn) => fn),
+    }),
+  },
+}))
+
+// Mock validation errors
+vi.mock('next-safe-action', () => ({
+  returnValidationErrors: vi.fn(),
+}))
+```
+
+**Example server action test:**
+
+```typescript
+import { describe, it, expect, vi } from 'vitest'
+import { signUpAction } from '@/features/signup/actions'
+
+vi.mock('server-only', () => ({}))
+
+describe('signUpAction', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('handles successful sign-up', async () => {
+    const mockSession = { user: { id: '1', email: 'test@example.com' } }
+    const mockAuth = await import('@/lib/auth')
+    mockAuth.auth.api.signUpEmail.mockResolvedValue(mockSession)
+
+    const input = { name: 'John', email: 'john@example.com', password: 'Password123!', confirmPassword: 'Password123!' }
+    
+    await signUpAction({ parsedInput: input })
+    
+    expect(mockAuth.auth.api.signUpEmail).toHaveBeenCalledWith({
+      body: expect.objectContaining({ name: 'John', email: 'john@example.com' }),
+    })
+  })
+})
+```
+
 ## Project Structure
 
 ```
