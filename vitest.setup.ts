@@ -21,3 +21,10 @@ Object.defineProperty(window, 'innerWidth', {
   writable: true,
   value: 1024,
 })
+
+// Mock ResizeObserver for input-otp
+global.ResizeObserver = class ResizeObserver {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
