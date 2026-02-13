@@ -41,121 +41,211 @@ npm run commit                 # Commitizen prompt
 
 ### Testing (Vitest)
 
+**Philosophy:** Integration tests = PRIMARY (comprehensive), Unit tests = SUPPLEMENTARY (business logic)
+
 ```bash
-npm run test                   # Run tests in watch mode
-npm run test:run               # Run tests once (CI)
-npm run test:run -- src/__tests__/components/button.test.tsx  # Single test file
-npm run test -- -t "test name"             # Run specific test by name
-npm run test:coverage          # Run tests with coverage
-npm run test:ui                # Open Vitest UI
+npm run test                   # Run all tests
+npm run test:run               # Run once (CI)
+npm run test:coverage          # With coverage
+```
+
+**Structure:**
+```
+src/__tests__/
+  integration/                 # PRIMARY: Features, forms, workflows
+    features/auth/login.test.tsx
+    features/admin/settings/profile.test.tsx
+  unit/                        # SUPPLEMENTARY: Actions, hooks, utilities
+    features/login/actions.test.ts
+    hooks/use-mobile.test.ts
+    lib/utils.test.ts
+```
+
+**Strategy:**
+| What | Type | Location |
+|------|------|----------|
+| Pages, forms, components | Integration | `integration/` |
+| Server actions | Unit | `unit/features/**/actions.test.ts` |
+| Hooks, utilities | Unit | `unit/hooks/`, `unit/lib/` |
+| Zod schemas | None | Trust the library |
+
+**vitest.config.ts:**
+```typescript
+test: {
+  include: [
+    'src/__tests__/integration/**/*.test.ts*',
+    'src/__tests__/unit/features/**/actions.test.ts',
+    'src/__tests__/unit/hooks/**/*.test.ts',
+    'src/__tests__/unit/lib/**/*.test.ts',
+  ],
+  coverage: {
+    include: ['src/features/**/actions.ts', 'src/db/**/handler.ts', 'src/hooks/**', 'src/lib/**'],
+    exclude: ['src/lib/auth*.ts', 'src/lib/safe-action.ts', 'src/lib/email.ts', 'src/lib/env*.ts'],
+  },
+}
+```
+
+**Examples:**
+```typescript
+// Integration - Test complete flow
+import { LoginForm } from '@/features/auth/login/_components/login-form'
+describe('Login', () => {
+  it('logs in user', async () => {
+    render(<LoginForm />)
+    await userEvent.type(screen.getByLabelText(/email/i), 'user@test.com')
+    await userEvent.click(screen.getByRole('button', { name: /sign in/i }))
+    await waitFor(() => expect(mockSignIn).toHaveBeenCalled())
+  })
+})
+
+// Unit - Test business logic
+import { signUpAction } from '@/features/signup/actions'
+vi.mock('server-only', () => ({}))
+describe('signUpAction', () => {
+  it('calls API', async () => {
+    await signUpAction({ parsedInput: { email: 'test@test.com', password: 'pass' } })
+    expect(auth.api.signUpEmail).toHaveBeenCalled()
+  })
+})
 ```
 
 #### Test Structure
 
-All tests are organized in `src/__tests__/` with separate folders for **unit** and **integration** tests:
-
 ```
 src/__tests__/
-  unit/                        # Unit tests (isolated logic)
-    lib/                       # Utility functions (utils, password, etc.)
-      utils.test.ts
-    hooks/                     # Custom hooks
-      use-mobile.test.ts
-    components/                # Simple UI components ONLY
-      button.test.tsx          # Basic components from src/components/ui/
-    features/                  # Actions and types only (NOT UI components)
+  integration/                 # PRIMARY: Full feature tests (pages, forms, workflows)
+    features/
+      auth/
+        login.test.tsx         # Complete login flow
+        signup.test.tsx
+      admin/
+        settings/
+          profile.test.tsx     # Settings page with forms
+    database/
+      users.test.ts            # Database operations
+    lib/
+      storage.test.ts          # External service integration
+
+  unit/                        # SUPPLEMENTARY: Business logic only
+    features/
       login/
-        actions.test.ts        # Server action logic
-        types.test.ts          # Zod schema validation
-  integration/                 # Integration tests (workflows)
-    features/                  # Full feature pages and forms
-      login.test.tsx           # Login form + validation + API + redirect
-    database/                  # Database operations
-      users.test.ts            # Drizzle query handlers
-    lib/                       # External services
-      storage.test.ts          # S3, email, etc.
+        actions.test.ts        # Server actions (API calls, error handling)
+    hooks/
+      use-mobile.test.ts       # Custom hooks
+      use-initials.test.ts
+    lib/
+      utils.test.ts            # Pure utility functions
+      storage.test.ts
+      ua-parser.test.ts
 ```
 
-**Testing Strategy:**
+#### Testing Strategy
 
-| Type | Use For | Location |
-|------|---------|----------|
-| **Unit tests** | Actions, types, utils, hooks, simple components | `src/__tests__/unit/` |
-| **Integration tests** | Feature pages, complex forms, workflows | `src/__tests__/integration/` |
+**Integration Tests (Primary)**
+- ✅ Use for: Pages, forms, components, complete workflows
+- ✅ Test: User interactions, form submission, API integration, navigation
+- ✅ Location: `src/__tests__/integration/`
+- ✅ Coverage: Happy path, validation errors, API failures
 
-**Examples:**
-- ✅ Unit test: `cn()` utility, `useMobile()` hook, `loginAction()` logic
-- ✅ Integration test: Login page with React Hook Form, database operations
-- ❌ Don't unit test: Complex forms in `features/*/_components/` (use integration tests)
+**Unit Tests (Supplementary)**
+- ✅ Use for: Server actions, hooks, utility functions
+- ✅ Test: Business logic in isolation
+- ✅ Location: `src/__tests__/unit/`
+- ❌ Don't test: UI components, Zod schemas, env config
 
-Import testing utilities from `@/lib/vitest`:
+| What | Test Type | Why |
+|------|-----------|-----|
+| Feature pages | Integration | Test complete user flows |
+| Forms with React Hook Form | Integration | Test validation + submission |
+| UI components (modals, buttons) | Integration | Test in context |
+| Server actions | Unit | Test business logic isolation |
+| Custom hooks | Unit | Test state management |
+| Utility functions | Unit | Test pure logic |
+| Zod schemas | None | Trust the library |
+
+#### Configuration
+
+**vitest.config.ts** controls what tests run and what gets coverage:
 
 ```typescript
-import { render, screen, userEvent, vi } from '@/lib/vitest'
-```
-
-### Testing Server Actions
-
-Server actions often import `'server-only'` which causes test errors. **Always mock it first:**
-
-```typescript
-// Mock server-only at the top of your test file
-vi.mock('server-only', () => ({}))
-```
-
-Then mock all other dependencies:
-
-```typescript
-// Mock auth service
-vi.mock('@/lib/auth', () => ({
-  auth: {
-    api: {
-      signUpEmail: vi.fn(),
-      signInEmail: vi.fn(),
-    },
+test: {
+  include: [
+    // Integration tests - comprehensive coverage
+    'src/__tests__/integration/**/*.test.ts*',
+    // Unit tests - business logic only
+    'src/__tests__/unit/features/**/actions.test.ts',
+    'src/__tests__/unit/hooks/**/*.test.ts',
+    'src/__tests__/unit/lib/**/*.test.ts',
+  ],
+  coverage: {
+    include: [
+      'src/features/**/actions.ts',
+      'src/db/**/handler.ts',
+      'src/hooks/**',
+      'src/lib/**',
+    ],
+    exclude: [
+      'src/lib/auth.ts',
+      'src/lib/auth-client.ts',
+      'src/lib/safe-action.ts',
+      'src/lib/email.ts',
+      'src/lib/env*.ts',
+    ],
   },
-}))
-
-// Mock safe action
-vi.mock('@/lib/safe-action', () => ({
-  safeAction: {
-    metadata: () => ({
-      inputSchema: {},
-      action: vi.fn().mockImplementation((fn) => fn),
-    }),
-  },
-}))
-
-// Mock validation errors
-vi.mock('next-safe-action', () => ({
-  returnValidationErrors: vi.fn(),
-}))
+}
 ```
 
-**Example server action test:**
+#### Writing Tests
+
+**Integration Test Example:**
+
+```typescript
+import { describe, it, expect, vi } from 'vitest'
+import { LoginForm } from '@/features/auth/login/_components/login-form'
+import { render, screen, userEvent, waitFor } from '@/lib/vitest'
+
+vi.mock('@/lib/auth-client', () => ({
+  authClient: { signIn: { email: vi.fn() } }
+}))
+
+describe('Login Flow', () => {
+  it('completes full login', async () => {
+    render(<LoginForm />)
+    
+    await userEvent.type(screen.getByLabelText(/email/i), 'user@test.com')
+    await userEvent.type(screen.getByLabelText(/password/i), 'password')
+    await userEvent.click(screen.getByRole('button', { name: /sign in/i }))
+    
+    await waitFor(() => {
+      expect(mockSignIn).toHaveBeenCalledWith({
+        email: 'user@test.com',
+        password: 'password'
+      })
+    })
+  })
+})
+```
+
+**Unit Test Example:**
 
 ```typescript
 import { describe, it, expect, vi } from 'vitest'
 import { signUpAction } from '@/features/signup/actions'
 
 vi.mock('server-only', () => ({}))
+vi.mock('@/lib/auth', () => ({
+  auth: { api: { signUpEmail: vi.fn() } }
+}))
 
 describe('signUpAction', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
-  })
-
-  it('handles successful sign-up', async () => {
-    const mockSession = { user: { id: '1', email: 'test@example.com' } }
-    const mockAuth = await import('@/lib/auth')
-    mockAuth.auth.api.signUpEmail.mockResolvedValue(mockSession)
-
-    const input = { name: 'John', email: 'john@example.com', password: 'Password123!', confirmPassword: 'Password123!' }
+  it('calls API with correct params', async () => {
+    const { auth } = await import('@/lib/auth')
+    auth.api.signUpEmail.mockResolvedValue({ user: { id: '1' } })
     
-    await signUpAction({ parsedInput: input })
+    await signUpAction({ parsedInput: { email: 'test@test.com', password: 'pass' } })
     
-    expect(mockAuth.auth.api.signUpEmail).toHaveBeenCalledWith({
-      body: expect.objectContaining({ name: 'John', email: 'john@example.com' }),
+    expect(auth.api.signUpEmail).toHaveBeenCalledWith({
+      body: { email: 'test@test.com', password: 'pass' }
     })
   })
 })
@@ -180,16 +270,9 @@ src/
   hooks/                       # Custom React hooks (useMobile.ts)
   constants/                   # App constants
   providers/                   # React context providers
-  __tests__/                   # Test files organized by type
-    unit/                      # Unit tests (isolated logic)
-      lib/                     # Utility functions (utils, password, etc.)
-      hooks/                   # Custom hooks
-      components/              # Simple UI components ONLY
-      features/                # Actions and types only (NOT UI components)
-    integration/               # Integration tests (workflows)
-      features/                # Full feature pages and forms
-      database/                # Database integration tests
-      lib/                     # External service integration
+  __tests__/
+    integration/               # PRIMARY: Pages, forms, workflows
+    unit/                      # SUPPLEMENTARY: Actions, hooks, utils
 ```
 
 ## Code Style Guidelines
@@ -338,15 +421,17 @@ This project includes custom skills for common tasks. Skills are discovered auto
 
 ### Available Skills
 
-- **create-unit-test** - Generate Vitest unit tests following project conventions
-  - Trigger: Type `/skill:create-unit-test` in chat
-  - Creates tests in `src/__tests__/unit/` with proper structure
+- **create-integration-test** (PRIMARY) - Feature pages, forms, workflows
+  - Location: `.agents/skills/create-integration-test/SKILL.md`
+
+- **create-unit-test** (Supplementary) - Actions, hooks, utilities
   - Location: `.agents/skills/create-unit-test/SKILL.md`
 
-- **create-integration-test** - Generate Vitest integration tests for feature flows
-  - Trigger: Type `/skill:create-integration-test` in chat
-  - Creates tests in `src/__tests__/integration/` for testing multiple units together
-  - Location: `.agents/skills/create-integration-test/SKILL.md`
+**Usage:**
+```
+/skill:create-integration-test  # For pages, forms, components
+/skill:create-unit-test         # For actions, hooks, utilities
+```
 
 ### How to Use Skills
 

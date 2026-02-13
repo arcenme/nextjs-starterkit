@@ -1,64 +1,53 @@
 ---
 name: create-integration-test
-description: Create Vitest integration tests for feature pages, forms, and complete user workflows - use this for complex UI, NOT for unit testing
+description: Create comprehensive integration tests for features, forms, and workflows - test how units work together
 ---
 
-## When to use this skill
+## When to use
 
-Use this skill for **integration tests** that test how multiple units work together:
+✅ **Use for (PRIMARY testing strategy):**
+- Feature pages (`src/app/**/page.tsx`)
+- Form components (`src/features/*/_components/*-form.tsx`)
+- UI components (modals, sidebars, navigation)
+- Workflows (login → dashboard, signup → onboarding)
+- Database operations, external APIs
 
-✅ **Use integration tests for:**
-- Feature pages with forms (`src/features/*/page.tsx` or `src/features/*/_components/*.tsx`)
-- Complex forms with React Hook Form + Zod
-- Complete user workflows (login → dashboard, signup → onboarding)
-- Database operations with real queries
-- External API integrations
+❌ **Don't use for:**
+- Server actions (use unit tests), utilities, hooks in isolation
 
-❌ **Don't use for (create unit tests instead):**
-- Server actions alone
-- Simple utility functions
-- Type schemas
-- Basic hooks
-
-## Test file locations
+## Location
 
 ```
 src/__tests__/integration/
-  features/         # Full feature flows
-    login.test.tsx  # Login form + validation + API + redirect
-    signup.test.tsx # Signup flow
-  database/         # Database operations
-    users.test.ts   # User CRUD operations
-  lib/              # External service integration
-    storage.test.ts # S3, email services
+  features/auth/login.test.tsx
+  features/admin/settings/profile.test.tsx
+  database/users.test.ts
+  lib/storage.test.ts
 ```
 
-## Import pattern
+## Example
 
 ```typescript
 import { describe, it, expect, vi } from 'vitest'
+import { LoginForm } from '@/features/auth/login/_components/login-form'
 import { render, screen, userEvent, waitFor } from '@/lib/vitest'
-```
 
-## Feature page test example
+vi.mock('@/lib/auth-client', () => ({
+  authClient: { signIn: { email: vi.fn() } }
+}))
+vi.mock('next/navigation', () => ({ useRouter: () => ({ push: vi.fn() }) }))
 
-```typescript
-describe('Login Page Integration', () => {
-  it('completes full login flow', async () => {
+describe('Login Flow', () => {
+  it('completes full login', async () => {
     render(<LoginForm />)
-
-    // Fill form
-    await userEvent.type(screen.getByLabel(/email/i), 'user@example.com')
-    await userEvent.type(screen.getByLabel(/password/i), 'password123')
-
-    // Submit
+    
+    await userEvent.type(screen.getByLabelText(/email/i), 'user@test.com')
+    await userEvent.type(screen.getByLabelText(/password/i), 'password')
     await userEvent.click(screen.getByRole('button', { name: /sign in/i }))
-
-    // Verify API called and navigation happens
+    
     await waitFor(() => {
       expect(mockSignIn).toHaveBeenCalledWith({
-        email: 'user@example.com',
-        password: 'password123'
+        email: 'user@test.com', password: 'password'
       })
     })
   })
@@ -70,32 +59,27 @@ describe('Login Page Integration', () => {
 **Mock external boundaries only:**
 
 ```typescript
-// Mock external services
-vi.mock('@/lib/auth-client', () => ({
-  authClient: { signIn: { email: vi.fn() } }
-}))
+// ✅ Mock external
+vi.mock('@/lib/auth-client', () => ({ authClient: { signIn: { email: vi.fn() } } }))
+vi.mock('next/navigation', () => ({ useRouter: () => ({ push: vi.fn() }) }))
 
-vi.mock('next/navigation', () => ({
-  useRouter: () => ({ push: vi.fn() })
-}))
-
-// Use real internal code
-import { validateInput } from '@/lib/validation'  // Real implementation
+// ❌ Don't mock internal
+import { Button } from '@/components/ui/button'  // Use real
+import { validateInput } from '@/lib/validation'  // Use real
 ```
 
-## Running tests
+## Test coverage
 
-```bash
-# Run all integration tests
-pnpm test:run -- src/__tests__/integration/
+- ✅ Happy path (successful flow)
+- ✅ Validation errors
+- ✅ API/network errors
+- ✅ Edge cases (empty states, special chars)
+- ✅ UI state changes (loading, disabled)
+- ✅ Navigation/redirects
 
-# Run specific test
-pnpm test:run -- src/__tests__/integration/features/login.test.tsx
-```
+## Principles
 
-## Key principles
-
-1. **Test complete flows** - Form → validation → action → result
-2. **Mock only external** - Database, APIs, external SDKs
-3. **Use real internal code** - Components, validation, utilities
-4. **Verify integration points** - Check that actions are called correctly
+1. Test complete flows: Form → validation → API → UI update
+2. Mock only external (APIs, DBs, SDKs)
+3. Use real internal components
+4. Verify end-to-end behavior

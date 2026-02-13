@@ -3,6 +3,16 @@ import { z } from 'zod'
 
 vi.mock('server-only', () => ({}))
 
+// Mock better-auth APIError
+vi.mock('better-auth', () => ({
+  APIError: class APIError extends Error {
+    constructor(message: string) {
+      super(message)
+      this.name = 'APIError'
+    }
+  },
+}))
+
 const mockReturnValidationErrors = vi.fn()
 
 vi.mock('@/lib/auth', () => ({
@@ -59,6 +69,7 @@ vi.mock('@/lib/safe-action', async () => {
   }
 })
 
+import { APIError } from 'better-auth'
 import {
   revokeOtherSessionsAction,
   revokeSessionAction,
@@ -93,6 +104,57 @@ describe('revokeSessionAction', () => {
     )
   })
 
+  it('handles APIError and returns validation errors', async () => {
+    const { auth } = await import('@/lib/auth')
+    ;(
+      auth.api.revokeSession as unknown as ReturnType<typeof vi.fn>
+    ).mockRejectedValue(new APIError('Session not found'))
+
+    const input = {
+      token: 'invalid-token',
+    }
+
+    await revokeSessionAction(input)
+
+    expect(mockReturnValidationErrors).toHaveBeenCalledWith(expect.anything(), {
+      _errors: ['Session not found'],
+    })
+  })
+
+  it('handles generic errors silently', async () => {
+    const { auth } = await import('@/lib/auth')
+    ;(
+      auth.api.revokeSession as unknown as ReturnType<typeof vi.fn>
+    ).mockRejectedValue(new Error('Network error'))
+
+    const input = {
+      token: 'abc123defghijklmnop',
+    }
+
+    const result = await revokeSessionAction(input)
+
+    // Should not throw, returns success even on error
+    expect(result).toEqual({ data: { success: true } })
+    expect(mockReturnValidationErrors).not.toHaveBeenCalled()
+  })
+
+  it('handles APIError with fallback message', async () => {
+    const { auth } = await import('@/lib/auth')
+    ;(
+      auth.api.revokeSession as unknown as ReturnType<typeof vi.fn>
+    ).mockRejectedValue(new APIError(''))
+
+    const input = {
+      token: 'abc123defghijklmnop',
+    }
+
+    await revokeSessionAction(input)
+
+    expect(mockReturnValidationErrors).toHaveBeenCalledWith(expect.anything(), {
+      _errors: ['Failed to revoke session'],
+    })
+  })
+
   it('validates empty token', async () => {
     const input = {
       token: '',
@@ -100,6 +162,7 @@ describe('revokeSessionAction', () => {
 
     const result = await revokeSessionAction(input)
     expect(result).toHaveProperty('validationErrors')
+    expect(result.validationErrors).toHaveProperty('token')
   })
 
   it('validates token format', async () => {
@@ -109,6 +172,7 @@ describe('revokeSessionAction', () => {
 
     const result = await revokeSessionAction(input)
     expect(result).toHaveProperty('validationErrors')
+    expect(result.validationErrors).toHaveProperty('token')
   })
 })
 
@@ -147,6 +211,142 @@ describe('revokeOtherSessionsAction', () => {
     expect(auth.api.revokeOtherSessions).toHaveBeenCalled()
   })
 
+  describe('verifyPassword error handling', () => {
+    it('handles APIError from verifyPassword', async () => {
+      const { auth } = await import('@/lib/auth')
+      ;(
+        auth.api.verifyPassword as unknown as ReturnType<typeof vi.fn>
+      ).mockRejectedValue(new APIError('Invalid password'))
+
+      const input = {
+        password: 'wrongpassword',
+      }
+
+      await revokeOtherSessionsAction(input)
+
+      expect(mockReturnValidationErrors).toHaveBeenCalledWith(
+        expect.anything(),
+        {
+          password: {
+            _errors: ['Invalid password'],
+          },
+        }
+      )
+    })
+
+    it('handles APIError from verifyPassword with fallback message', async () => {
+      const { auth } = await import('@/lib/auth')
+      ;(
+        auth.api.verifyPassword as unknown as ReturnType<typeof vi.fn>
+      ).mockRejectedValue(new APIError(''))
+
+      const input = {
+        password: 'wrongpassword',
+      }
+
+      await revokeOtherSessionsAction(input)
+
+      expect(mockReturnValidationErrors).toHaveBeenCalledWith(
+        expect.anything(),
+        {
+          password: {
+            _errors: ['Failed to verify password'],
+          },
+        }
+      )
+    })
+
+    it('handles generic error from verifyPassword', async () => {
+      const { auth } = await import('@/lib/auth')
+      ;(
+        auth.api.verifyPassword as unknown as ReturnType<typeof vi.fn>
+      ).mockRejectedValue(new Error('Network error'))
+
+      const input = {
+        password: 'Password123!',
+      }
+
+      await revokeOtherSessionsAction(input)
+
+      // Generic errors trigger the fallback validation error
+      expect(mockReturnValidationErrors).toHaveBeenCalledWith(
+        expect.anything(),
+        {
+          _errors: ['Failed to verify password'],
+        }
+      )
+    })
+  })
+
+  describe('revokeOtherSessions error handling', () => {
+    it('handles APIError from revokeOtherSessions', async () => {
+      const { auth } = await import('@/lib/auth')
+      ;(
+        auth.api.verifyPassword as unknown as ReturnType<typeof vi.fn>
+      ).mockResolvedValue({ status: true })
+      ;(
+        auth.api.revokeOtherSessions as unknown as ReturnType<typeof vi.fn>
+      ).mockRejectedValue(new APIError('Failed to revoke sessions'))
+
+      const input = {
+        password: 'Password123!',
+      }
+
+      await revokeOtherSessionsAction(input)
+
+      expect(mockReturnValidationErrors).toHaveBeenCalledWith(
+        expect.anything(),
+        {
+          _errors: ['Failed to revoke sessions'],
+        }
+      )
+    })
+
+    it('handles APIError from revokeOtherSessions with fallback message', async () => {
+      const { auth } = await import('@/lib/auth')
+      ;(
+        auth.api.verifyPassword as unknown as ReturnType<typeof vi.fn>
+      ).mockResolvedValue({ status: true })
+      ;(
+        auth.api.revokeOtherSessions as unknown as ReturnType<typeof vi.fn>
+      ).mockRejectedValue(new APIError(''))
+
+      const input = {
+        password: 'Password123!',
+      }
+
+      await revokeOtherSessionsAction(input)
+
+      expect(mockReturnValidationErrors).toHaveBeenCalledWith(
+        expect.anything(),
+        {
+          _errors: ['Failed to revoke sessions'],
+        }
+      )
+    })
+
+    it('handles generic error from revokeOtherSessions silently', async () => {
+      const { auth } = await import('@/lib/auth')
+      ;(
+        auth.api.verifyPassword as unknown as ReturnType<typeof vi.fn>
+      ).mockResolvedValue({ status: true })
+      ;(
+        auth.api.revokeOtherSessions as unknown as ReturnType<typeof vi.fn>
+      ).mockRejectedValue(new Error('Network error'))
+
+      const input = {
+        password: 'Password123!',
+      }
+
+      const result = await revokeOtherSessionsAction(input)
+
+      // Should return success even on error
+      expect(result).toEqual({ data: { success: true } })
+      // Generic errors don't trigger validation errors
+      expect(mockReturnValidationErrors).not.toHaveBeenCalled()
+    })
+  })
+
   it('validates empty password', async () => {
     const input = {
       password: '',
@@ -154,5 +354,16 @@ describe('revokeOtherSessionsAction', () => {
 
     const result = await revokeOtherSessionsAction(input)
     expect(result).toHaveProperty('validationErrors')
+    expect(result.validationErrors).toHaveProperty('password')
+  })
+
+  it('validates password too long', async () => {
+    const input = {
+      password: 'a'.repeat(129),
+    }
+
+    const result = await revokeOtherSessionsAction(input)
+    expect(result).toHaveProperty('validationErrors')
+    expect(result.validationErrors).toHaveProperty('password')
   })
 })

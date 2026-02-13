@@ -1,252 +1,68 @@
 ---
 name: create-unit-test
-description: Create Vitest unit tests for actions, types, utils, hooks, and simple components - NOT for complex UI in features
+description: Create focused unit tests for server actions, hooks, and utilities - isolated business logic only
 ---
 
-## When to use this skill
+## When to use
 
-Use this skill for **isolated, fast unit tests** that don't require complex mocking:
+✅ **Use for:**
+- Server actions (`src/features/*/actions.ts`) - API calls, error handling
+- Custom hooks (`src/hooks/*.ts`) - State management
+- Utilities (`src/lib/utils.ts`, `storage.ts`, `ua-parser.ts`) - Pure functions
 
-✅ **GOOD for unit tests:**
-- Server actions (`src/features/*/actions.ts`)
-- Type schemas and validation (`src/features/*/types.ts`, `src/db/*/zod.ts`)
-- Utility functions (`src/lib/utils.ts`, `src/lib/password.ts`)
-- Custom hooks (`src/hooks/*.ts`)
-- Simple UI components (`src/components/ui/button.tsx`, `src/components/ui/input.tsx`)
+❌ **Don't use for:**
+- UI components, forms, types/schemas, env config
 
-❌ **NOT for unit tests (use integration tests instead):**
-- Complex forms with React Hook Form
-- Feature pages with multiple components
-- Components with heavy external dependencies
-
-## Test file locations
+## Location
 
 ```
 src/__tests__/unit/
-  lib/              # Utility functions
-    utils.test.ts
-    password.test.ts
-  hooks/            # Custom hooks
-    use-mobile.test.ts
-  components/       # Simple UI components
-    button.test.tsx
-  features/         # Actions and types only
-    login/
-      actions.test.ts    # Test server actions
-      types.test.ts      # Test Zod schemas
+  features/**/actions.test.ts
+  hooks/*.test.ts
+  lib/*.test.ts
 ```
 
-## Import pattern
-
-```typescript
-import { describe, it, expect, vi } from 'vitest'
-import { render, screen, userEvent } from '@/lib/vitest'
-```
-
-## Examples
-
-### Testing a Server Action
+## Example
 
 ```typescript
 import { describe, it, expect, vi } from 'vitest'
 import { signUpAction } from '@/features/signup/actions'
-import { APIError } from 'better-auth'
 
-// Mock server-only import to avoid import errors in tests
 vi.mock('server-only', () => ({}))
-
-// Mock all external dependencies
 vi.mock('@/lib/auth', () => ({
-  auth: {
-    api: {
-      signUpEmail: vi.fn(),
-    },
-  },
-}))
-
-vi.mock('@/lib/safe-action', () => ({
-  safeAction: {
-    metadata: () => ({
-      inputSchema: {},
-      action: vi.fn().mockImplementation((fn) => fn),
-    }),
-  },
-}))
-
-vi.mock('next-safe-action', () => ({
-  returnValidationErrors: vi.fn(),
-}))
-
-vi.mock('@/constants/routes', () => ({
-  ROUTES: {
-    REDIRECT_AFTER_SIGN_IN: '/dashboard',
-  },
+  auth: { api: { signUpEmail: vi.fn() } }
 }))
 
 describe('signUpAction', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
-  })
+  beforeEach(() => vi.clearAllMocks())
 
-  it('successfully processes valid sign-up data', async () => {
-    const mockSession = { user: { id: '1', email: 'test@example.com' } }
-    const mockAuth = await import('@/lib/auth')
-    mockAuth.auth.api.signUpEmail.mockResolvedValue(mockSession)
-
-    const input = {
-      name: 'John Doe',
-      email: 'john@example.com',
-      password: 'Password123!',
-      confirmPassword: 'Password123!',
-    }
-
-    await signUpAction({ parsedInput: input })
-
-    expect(mockAuth.auth.api.signUpEmail).toHaveBeenCalledWith({
-      body: {
-        name: input.name,
-        email: input.email,
-        password: input.password,
-        callbackURL: '/dashboard',
-      },
+  it('calls API with correct params', async () => {
+    const { auth } = await import('@/lib/auth')
+    auth.api.signUpEmail.mockResolvedValue({ user: { id: '1' } })
+    
+    await signUpAction({ parsedInput: { email: 'test@test.com', password: 'pass' } })
+    
+    expect(auth.api.signUpEmail).toHaveBeenCalledWith({
+      body: { email: 'test@test.com', password: 'pass' }
     })
   })
-
-  it('handles APIError from auth service', async () => {
-    const apiError = new APIError('BAD_REQUEST', 'Email already exists')
-    const mockAuth = await import('@/lib/auth')
-    const mockReturnValidationErrors = await import('next-safe-action')
-    mockAuth.auth.api.signUpEmail.mockRejectedValue(apiError)
-
-    const input = {
-      name: 'John Doe',
-      email: 'existing@example.com',
-      password: 'Password123!',
-      confirmPassword: 'Password123!',
-    }
-
-    await signUpAction({ parsedInput: input })
-
-    expect(mockReturnValidationErrors.returnValidationErrors).toHaveBeenCalled()
-  })
-
-  it('handles null session response', async () => {
-    const mockAuth = await import('@/lib/auth')
-    const mockReturnValidationErrors = await import('next-safe-action')
-    mockAuth.auth.api.signUpEmail.mockResolvedValue(null)
-
-    const input = {
-      name: 'John Doe',
-      email: 'john@example.com',
-      password: 'Password123!',
-      confirmPassword: 'Password123!',
-    }
-
-    await signUpAction({ parsedInput: input })
-
-    expect(mockReturnValidationErrors.returnValidationErrors).toHaveBeenCalledWith(
-      expect.anything(),
-      { _errors: ['Invalid credentials'] }
-    )
-  })
 })
 ```
 
-### Testing a Utility Function
+## Common mocks
 
-```typescript
-import { describe, it, expect } from 'vitest'
-import { cn } from '@/lib/utils'
-
-describe('cn', () => {
-  it('merges class names correctly', () => {
-    expect(cn('px-4', 'py-2')).toBe('px-4 py-2')
-  })
-})
-```
-
-### Testing a Simple Component
-
-```typescript
-import { describe, it, expect } from 'vitest'
-import { Button } from '@/components/ui/button'
-import { render, screen } from '@/lib/vitest'
-
-describe('Button', () => {
-  it('renders with text', () => {
-    render(<Button>Click me</Button>)
-    expect(screen.getByText('Click me')).toBeInTheDocument()
-  })
-})
-```
-
-## Running tests
-
-```bash
-# Run all unit tests
-pnpm test:run -- src/__tests__/unit/
-
-# Run specific test
-pnpm test:run -- src/__tests__/unit/lib/utils.test.ts
-```
-
-## Handling server-only imports
-
-Server actions often import `'server-only'` which causes errors in test environments. **Always mock it first:**
-
-```typescript
-// Mock server-only at the top of your test file
-vi.mock('server-only', () => ({}))
-```
-
-## Common mocking patterns
-
-### Safe Action Pattern
 ```typescript
 vi.mock('@/lib/safe-action', () => ({
-  safeAction: {
-    metadata: () => ({
-      inputSchema: {},
-      action: vi.fn().mockImplementation((fn) => fn),
-    }),
-  },
+  safeAction: { metadata: () => ({ action: vi.fn((fn) => fn) }) }
 }))
+vi.mock('next-safe-action', () => ({ returnValidationErrors: vi.fn() }))
+vi.mock('@/lib/auth', () => ({ auth: { api: { signUpEmail: vi.fn() } } }))
 ```
 
-### Next Safe Action Pattern
-```typescript
-vi.mock('next-safe-action', () => ({
-  returnValidationErrors: vi.fn(),
-}))
-```
+## Principles
 
-### Auth Service Pattern
-```typescript
-vi.mock('@/lib/auth', () => ({
-  auth: {
-    api: {
-      signUpEmail: vi.fn(),
-      signInEmail: vi.fn(),
-      // other auth methods
-    },
-  },
-}))
-```
-
-### Constants Pattern
-```typescript
-vi.mock('@/constants/routes', () => ({
-  ROUTES: {
-    REDIRECT_AFTER_SIGN_IN: '/dashboard',
-  },
-}))
-```
-
-## Key principles
-
-1. **Fast and isolated** - Mock all dependencies
-2. **Mock server-only** - Always mock `'server-only'` import first
-3. **No complex UI** - Forms with React Hook Form are integration tests
-4. **Test logic, not integration** - Focus on single units
-5. **Clear mocks** - Use `vi.clearAllMocks()` in beforeEach
-6. **Dynamic imports** - Use `await import()` to access mocked modules in tests
+1. Test business logic, not frameworks (Zod, React, Next.js)
+2. Mock all external dependencies
+3. Fast (< 100ms per test)
+4. Use `vi.clearAllMocks()` in beforeEach
+5. Dynamic imports for mocked modules: `await import('@/lib/auth')`

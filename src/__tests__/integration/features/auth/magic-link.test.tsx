@@ -4,6 +4,10 @@ import { render, screen, userEvent, waitFor } from '@/lib/vitest'
 
 vi.mock('server-only', () => ({}))
 
+vi.mock('next/headers', () => ({
+  headers: vi.fn().mockResolvedValue(new Headers()),
+}))
+
 vi.mock('@/lib/env-client', () => ({
   env: {
     NEXT_PUBLIC_APP_NAME: 'Test App',
@@ -17,7 +21,7 @@ vi.mock('@/lib/env-client', () => ({
 vi.mock('@/lib/auth', () => ({
   auth: {
     api: {
-      sendVerificationEmail: vi.fn(),
+      signInMagicLink: vi.fn().mockResolvedValue({ success: true }),
     },
   },
 }))
