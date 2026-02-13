@@ -1,7 +1,7 @@
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { ROUTES } from '@/constants/routes'
-import SettingSecurityPage from '@/features/settings/security'
+import SettingSecurityPage from '@/features/admin/settings/security'
 import { auth } from '@/lib/auth'
 
 export default async function Page() {

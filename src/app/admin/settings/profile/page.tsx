@@ -1,7 +1,7 @@
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { ROUTES } from '@/constants/routes'
-import SettingProfilePage from '@/features/settings/profile'
+import SettingProfilePage from '@/features/admin/settings/profile'
 import { auth } from '@/lib/auth'
 
 export default async function Page() {

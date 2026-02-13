@@ -1,7 +1,7 @@
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { ROUTES } from '@/constants/routes'
-import DashboardPage from '@/features/dashboard'
+import DashboardPage from '@/features/admin/dashboard'
 import { auth } from '@/lib/auth'
 
 export default async function Page() {

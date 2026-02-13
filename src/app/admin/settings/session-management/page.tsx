@@ -1,7 +1,7 @@
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { ROUTES } from '@/constants/routes'
-import SettingSessionManagementPage from '@/features/settings/session-management'
+import SettingSessionManagementPage from '@/features/admin/settings/session-management'
 import { auth } from '@/lib/auth'
 
 export default async function Page() {

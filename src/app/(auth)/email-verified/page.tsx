@@ -1,4 +1,4 @@
-import EmailVerifiedPage from '@/features/email-verified'
+import EmailVerifiedPage from '@/features/auth/email-verified'
 
 type PageProps = {
   searchParams: Promise<{ error?: string; token?: string }>

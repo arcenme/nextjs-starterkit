@@ -1,4 +1,4 @@
-import ResetPasswordPage from '@/features/reset-password'
+import ResetPasswordPage from '@/features/auth/reset-password'
 
 type PageProps = {
   searchParams: Promise<{ error?: string; token?: string }>

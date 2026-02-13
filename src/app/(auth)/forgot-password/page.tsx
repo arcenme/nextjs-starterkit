@@ -1,7 +1,7 @@
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { ROUTES } from '@/constants/routes'
-import ForgotPasswordPage from '@/features/forgot-password'
+import ForgotPasswordPage from '@/features/auth/forgot-password'
 import { auth } from '@/lib/auth'
 
 export default async function Page() {
