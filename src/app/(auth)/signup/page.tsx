@@ -1,7 +1,7 @@
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { ROUTES } from '@/constants/routes'
-import SignUpPage from '@/features/signup'
+import SignUpPage from '@/features/auth/signup'
 import { auth } from '@/lib/auth'
 
 export default async function Page() {

@@ -1,7 +1,7 @@
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { ROUTES } from '@/constants/routes'
-import MagicLinkPage from '@/features/magic-link'
+import MagicLinkPage from '@/features/auth/magic-link'
 import { auth } from '@/lib/auth'
 
 type PageProps = {
