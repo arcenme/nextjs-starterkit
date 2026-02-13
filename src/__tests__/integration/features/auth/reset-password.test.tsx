@@ -44,7 +44,7 @@ describe('Reset Password Integration', () => {
   })
 
   describe('ResetPasswordForm', () => {
-    it('renders reset password form with password fields', () => {
+    it('renders reset password form with all elements', () => {
       render(<ResetPasswordForm />)
 
       expect(screen.getByLabelText(/new password/i)).toBeInTheDocument()
@@ -52,6 +52,30 @@ describe('Reset Password Integration', () => {
       expect(
         screen.getByRole('button', { name: /reset password/i })
       ).toBeInTheDocument()
+    })
+
+    it('password inputs have correct type and attributes', () => {
+      render(<ResetPasswordForm />)
+
+      const newPasswordInput = screen.getByLabelText(/new password/i)
+      const confirmPasswordInput = screen.getByLabelText(/confirm password/i)
+
+      expect(newPasswordInput).toHaveAttribute('type', 'password')
+      expect(confirmPasswordInput).toHaveAttribute('type', 'password')
+      expect(newPasswordInput).toHaveAttribute('id', 'newPassword')
+      expect(confirmPasswordInput).toHaveAttribute('id', 'confirmPassword')
+      expect(newPasswordInput).toHaveAttribute('required')
+      expect(confirmPasswordInput).toHaveAttribute('required')
+    })
+
+    it('password inputs have placeholder text', () => {
+      render(<ResetPasswordForm />)
+
+      const newPasswordInput = screen.getByLabelText(/new password/i)
+      const confirmPasswordInput = screen.getByLabelText(/confirm password/i)
+
+      expect(newPasswordInput).toHaveAttribute('placeholder', '********')
+      expect(confirmPasswordInput).toHaveAttribute('placeholder', '********')
     })
 
     it('allows entering new password', async () => {
@@ -181,6 +205,65 @@ describe('Reset Password Integration', () => {
 
       expect(newPasswordInput).toBeRequired()
       expect(confirmPasswordInput).toBeRequired()
+    })
+
+    it('displays validation error for mismatched passwords', async () => {
+      render(<ResetPasswordForm />)
+
+      await userEvent.type(
+        screen.getByLabelText(/new password/i),
+        'Password123!'
+      )
+      await userEvent.type(
+        screen.getByLabelText(/confirm password/i),
+        'DifferentPassword123!'
+      )
+
+      await userEvent.click(
+        screen.getByRole('button', { name: /reset password/i })
+      )
+
+      await waitFor(() => {
+        expect(screen.getByText(/passwords do not match/i)).toBeInTheDocument()
+      })
+    })
+
+    it('form is invalid when confirm password is empty', async () => {
+      render(<ResetPasswordForm />)
+
+      await userEvent.type(
+        screen.getByLabelText(/new password/i),
+        'Password123!'
+      )
+
+      // Confirm password field should be empty
+      const confirmInput = screen.getByLabelText(/confirm password/i)
+      expect(confirmInput).toHaveValue('')
+
+      // Try to submit
+      await userEvent.click(
+        screen.getByRole('button', { name: /reset password/i })
+      )
+
+      // Form should still be present (submission prevented)
+      await waitFor(() => {
+        expect(screen.getByLabelText(/confirm password/i)).toBeInTheDocument()
+      })
+    })
+
+    it('button has cursor-pointer class', () => {
+      render(<ResetPasswordForm />)
+
+      const button = screen.getByRole('button', { name: /reset password/i })
+      expect(button).toHaveClass('cursor-pointer')
+    })
+
+    it('form contains field group with gap', () => {
+      render(<ResetPasswordForm />)
+
+      const fieldGroup = document.querySelector('[data-slot="field-group"]')
+      expect(fieldGroup).toBeInTheDocument()
+      expect(fieldGroup).toHaveClass('gap-4')
     })
   })
 })

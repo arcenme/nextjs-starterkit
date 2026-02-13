@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest'
-import { cn } from '@/lib/utils'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { calculateSHA256, cn } from '@/lib/utils'
 
 describe('cn', () => {
   it('merges class names', () => {
@@ -41,6 +41,47 @@ describe('cn', () => {
   })
 })
 
-// Note: calculateSHA256 tests removed as they require browser File API
-// which is not available in jsdom. These should be tested in integration
-// tests with proper browser environment or mocked.
+describe('calculateSHA256', () => {
+  beforeEach(() => {
+    vi.stubGlobal('crypto', {
+      subtle: {
+        digest: vi.fn().mockResolvedValue(new ArrayBuffer(8)),
+      },
+    })
+  })
+
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  it('calculates SHA256 hash of a file', async () => {
+    const mockFile = {
+      arrayBuffer: vi.fn().mockResolvedValue(new ArrayBuffer(8)),
+    } as unknown as File
+    const result = await calculateSHA256(mockFile)
+    expect(result).toBeDefined()
+    expect(typeof result).toBe('string')
+  })
+
+  it('calls crypto.subtle.digest with SHA-256', async () => {
+    const arrayBuffer = new ArrayBuffer(8)
+    const mockFile = {
+      arrayBuffer: vi.fn().mockResolvedValue(arrayBuffer),
+    } as unknown as File
+    await calculateSHA256(mockFile)
+    expect(crypto.subtle.digest).toHaveBeenCalledWith('SHA-256', arrayBuffer)
+  })
+
+  it('returns base64 encoded hash', async () => {
+    vi.stubGlobal('crypto', {
+      subtle: {
+        digest: vi.fn().mockResolvedValue(new Uint8Array([1, 2, 3, 4])),
+      },
+    })
+    const mockFile = {
+      arrayBuffer: vi.fn().mockResolvedValue(new ArrayBuffer(4)),
+    } as unknown as File
+    const result = await calculateSHA256(mockFile)
+    expect(result).toBe('AQIDBA==')
+  })
+})

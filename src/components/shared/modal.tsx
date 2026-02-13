@@ -66,11 +66,14 @@ export function Modal({
             <DialogPrimitive.Title className="font-semibold text-lg leading-none tracking-tight">
               {title}
             </DialogPrimitive.Title>
-            {description && (
-              <DialogPrimitive.Description className="text-muted-foreground text-sm">
-                {description}
-              </DialogPrimitive.Description>
-            )}
+            <DialogPrimitive.Description
+              className={cn(
+                'text-muted-foreground text-sm',
+                !description && 'sr-only'
+              )}
+            >
+              {description || ' '}
+            </DialogPrimitive.Description>
           </div>
 
           {/* Body with scroll */}
